@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'DM Sans', sans-serif;
+    background: #0a0a0a;
+    color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+  }
+  h1, h2 { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.02em; }
+  button, a, [role="button"] {
+    min-height: 44px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  input, select, textarea {
+    font-size: 16px !important;
+    -webkit-appearance: none;
+  }
+  * { -webkit-overflow-scrolling: touch; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-[#22c55e] hover:bg-[#16a34a] text-black font-bold px-6 py-3.5 rounded-full
+           transition-all duration-200 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed
+           text-sm min-h-[48px] flex items-center justify-center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-secondary {
+    @apply border border-[#2a2a2a] hover:border-[#444] bg-transparent text-white font-semibold
+           px-6 py-3.5 rounded-full transition-all duration-200 active:scale-95
+           text-sm min-h-[48px] flex items-center justify-center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-white {
+    @apply bg-white hover:bg-gray-100 text-black font-bold px-6 py-3.5 rounded-full
+           transition-all duration-200 active:scale-95 text-sm min-h-[48px] flex items-center justify-center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .input {
+    @apply w-full px-4 py-3.5 rounded-2xl border border-[#1e1e1e] bg-[#111]
+           focus:outline-none focus:ring-2 focus:ring-[#22c55e] focus:border-transparent focus:bg-[#151515]
+           placeholder:text-[#444] text-white transition;
+    font-size: 16px !important;
+    min-height: 52px;
+    -webkit-appearance: none;
+  }
+  .textarea { @apply input resize-none; min-height: 100px; }
+
+  .card {
+    @apply bg-[#111] rounded-3xl border border-[#1e1e1e] overflow-hidden;
+  }
+
+  .skill-chip {
+    @apply inline-flex items-center text-xs font-medium px-3 py-2 rounded-full
+           bg-[#1a1a1a] text-[#888] border border-[#222]
+           hover:border-[#22c55e] hover:bg-[#0a1a0a] hover:text-[#22c55e]
+           transition-all duration-150;
+    min-height: 36px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .skill-chip-active {
+    @apply bg-[#0a1a0a] text-[#22c55e] border-[#22c55e];
+  }
+
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 16px); }
+  .safe-top    { padding-top:    env(safe-area-inset-top,    0px);  }
+}
