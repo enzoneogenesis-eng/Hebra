@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { ProfilePreview } from "@/components/ProfilePreview";
+import { LandingGallery } from "@/components/LandingGallery";
 
 const PORTFOLIO_FOTOS = [
   { src: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=300&h=300&fit=crop", alt: "Degradé" },
@@ -35,9 +36,9 @@ export default async function HomePage() {
         </div>
         <h1 className="font-['Bebas_Neue'] text-[58px] sm:text-[80px] md:text-[110px] leading-none tracking-tight text-white mb-4">
           TU PRÓXIMO<br />BARBERO<br />
-          <span className="text-[#1e1e1e]">TE ESPERA.</span>
+          <span className="text-[#333]">TE ESPERA.</span>
         </h1>
-        <p className="text-[#555] text-base md:text-lg max-w-lg mb-6 leading-relaxed font-light">
+        <p className="text-[#888] text-base md:text-lg max-w-lg mb-6 leading-relaxed font-light">
           Encontrá los mejores barberos y salones. Mostrá tu trabajo y conectá con clientes.
         </p>
         <div className="flex flex-col sm:flex-row gap-3">
@@ -48,13 +49,7 @@ export default async function HomePage() {
 
       {/* PRUEBA SOCIAL */}
       <section className="px-4 md:px-6 pb-8 max-w-6xl mx-auto">
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-1.5 mb-4">
-          {PORTFOLIO_FOTOS.map((foto, i) => (
-            <div key={i} className="aspect-square rounded-xl overflow-hidden relative bg-[#111]">
-              <Image src={foto.src} alt={foto.alt} fill sizes="16vw" className="object-cover opacity-80" />
-            </div>
-          ))}
-        </div>
+        <LandingGallery />
 
         <div className="bg-[#111] border border-[#1e1e1e] rounded-2xl px-4 py-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
