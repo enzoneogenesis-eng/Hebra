@@ -8,7 +8,7 @@ import { SubirTrabajo } from "./SubirTrabajo";
 import { TrabajoCard } from "./TrabajoCard";
 import { Onboarding } from "./Onboarding";
 import { DashboardFinanzas } from "./DashboardFinanzas"
-import { ResenasSection } from "./ResenasSection"
+import { ResenasDashboard } from "./ResenasDashboard"
 import { EstadisticasBarbero } from "./EstadisticasBarbero";
 import { BadgeVerificado } from "./BadgeVerificado";
 import { Briefcase, MapPin, Send, Check, X, ChevronDown, ChevronUp } from "lucide-react";
@@ -236,5 +236,6 @@ function OfertaCard({ oferta, yaPost, estado, postulando, mensaje, setMensaje, o
     </div>
   );
 }
+
 
 
