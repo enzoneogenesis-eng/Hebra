@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -7,14 +7,16 @@ import { EditProfileForm } from "./EditProfileForm";
 import { SubirTrabajo } from "./SubirTrabajo";
 import { TrabajoCard } from "./TrabajoCard";
 import { Onboarding } from "./Onboarding";
+import { DashboardFinanzas } from "./DashboardFinanzas"
+import { ResenasSection } from "./ResenasSection"
 import { EstadisticasBarbero } from "./EstadisticasBarbero";
 import { BadgeVerificado } from "./BadgeVerificado";
 import { Briefcase, MapPin, Send, Check, X, ChevronDown, ChevronUp } from "lucide-react";
 import type { Profile, Trabajo, Oferta, Postulacion } from "@/types";
 
 const TIPO_LABEL: Record<string, string> = {
-  relacion_dependencia: "Relación de dependencia",
-  autonomo: "Autónomo",
+  relacion_dependencia: "RelaciÃ³n de dependencia",
+  autonomo: "AutÃ³nomo",
   porcentaje: "Por porcentaje",
   alquiler_silla: "Alquiler de silla",
 };
@@ -24,7 +26,7 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
   const [trabajos, setTrabajos]       = useState<Trabajo[]>([]);
   const [ofertas, setOfertas]         = useState<Oferta[]>([]);
   const [misPostulaciones, setMisPost] = useState<Postulacion[]>([]);
-  const [tab, setTab]                 = useState<"portfolio"|"ofertas">("portfolio");
+  const [tab, setTab]                 = useState<"portfolio"|"ofertas"|"finanzas"|"resenas">("portfolio");
   const [loading, setLoading]         = useState(true);
   const [postulando, setPostulando]   = useState<string | null>(null);
   const [mensaje, setMensaje]         = useState("");
@@ -77,7 +79,7 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
   const estadoPost  = (id: string) => misPostulaciones.find(p => p.oferta_id === id)?.estado;
 
   const ESTADO_COLOR: Record<string, string> = { pendiente: "#f59e0b", vista: "#3b82f6", aceptada: "#22c55e", rechazada: "#ef4444" };
-  const ESTADO_LABEL: Record<string, string> = { pendiente: "Pendiente", vista: "Vista", aceptada: "¡Aceptada!", rechazada: "Rechazada" };
+  const ESTADO_LABEL: Record<string, string> = { pendiente: "Pendiente", vista: "Vista", aceptada: "Â¡Aceptada!", rechazada: "Rechazada" };
 
   const ofertasMatch = ofertas.filter(o => !profile.skills || !(o as any).skills || (o as any).skills?.some((s: string) => profile.skills!.includes(s)));
   const ofertasOtras = ofertas.filter(o => !ofertasMatch.includes(o));
@@ -93,11 +95,11 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
       {(profile as any).verificado && (
         <div className="mb-4 flex items-center gap-2">
           <BadgeVerificado size="md" />
-          <span className="text-xs text-[#444]">Tu perfil está verificado por Hebra</span>
+          <span className="text-xs text-[#444]">Tu perfil estÃ¡ verificado por Hebra</span>
         </div>
       )}
 
-      {/* Estadísticas */}
+      {/* EstadÃ­sticas */}
       <EstadisticasBarbero barberoId={profile.id} />
 
       <EditProfileForm profile={profile} onUpdate={() => loadAll()} />
@@ -106,7 +108,7 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
       <div className="flex gap-1 mb-5 bg-[#111] border border-[#1e1e1e] p-1 rounded-2xl">
         {[
           { id: "portfolio", label: `Portfolio (${trabajos.length})` },
-          { id: "ofertas",   label: `Búsquedas (${ofertas.length})` },
+          { id: "ofertas",   label: `BÃºsquedas (${ofertas.length})` },
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id as any)}
             className={`flex-1 py-2.5 text-sm font-semibold rounded-xl transition-all ${
@@ -126,7 +128,7 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
               <SubirTrabajo userId={profile.id} onSubido={t => setTrabajos(prev => [t, ...prev])} />
               {trabajos.length > 0
                 ? <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">{trabajos.map(t => <TrabajoCard key={t.id} trabajo={t} />)}</div>
-                : <div className="text-center py-12"><p className="text-sm text-[#333]">Todavía no subiste fotos</p></div>
+                : <div className="text-center py-12"><p className="text-sm text-[#333]">TodavÃ­a no subiste fotos</p></div>
               }
             </div>
           )}
@@ -141,7 +143,7 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
                       <div key={p.id} className="flex items-center justify-between gap-3 py-2 border-b border-[#1a1a1a] last:border-0">
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-white truncate">{(p.ofertas as any)?.titulo ?? "Oferta"}</p>
-                          <p className="text-[11px] text-[#444]">{(p.ofertas as any)?.profiles?.nombre ?? "Salón"}</p>
+                          <p className="text-[11px] text-[#444]">{(p.ofertas as any)?.profiles?.nombre ?? "SalÃ³n"}</p>
                         </div>
                         <span className="text-[10px] font-bold px-2 py-1 rounded-full flex-shrink-0"
                           style={{ background: (ESTADO_COLOR[p.estado] ?? "#999") + "20", color: ESTADO_COLOR[p.estado] ?? "#999" }}>
@@ -164,13 +166,13 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
 
               {ofertasOtras.length > 0 && (
                 <div>
-                  <p className="text-[10px] font-bold text-[#444] uppercase tracking-widest mb-2">Otras búsquedas</p>
+                  <p className="text-[10px] font-bold text-[#444] uppercase tracking-widest mb-2">Otras bÃºsquedas</p>
                   {ofertasOtras.map(o => <OfertaCard key={o.id} oferta={o} yaPost={yaPostulado(o.id)} estado={estadoPost(o.id)} postulando={postulando === o.id} mensaje={mensaje} setMensaje={setMensaje} onPostular={() => postularse(o.id)} onConfirmar={() => confirmarPostulacion(o.id)} onCancelar={() => { setPostulando(null); setMensaje(""); }} onRetirar={() => retirarPostulacion(o.id)} expandida={expandida === o.id} onToggle={() => setExpandida(expandida === o.id ? null : o.id)} TIPO_LABEL={TIPO_LABEL} ESTADO_COLOR={ESTADO_COLOR} ESTADO_LABEL={ESTADO_LABEL} />)}
                 </div>
               )}
 
               {ofertas.length === 0 && (
-                <div className="text-center py-12"><Briefcase size={28} className="text-[#222] mx-auto mb-3" /><p className="text-sm text-[#333]">No hay búsquedas activas</p></div>
+                <div className="text-center py-12"><Briefcase size={28} className="text-[#222] mx-auto mb-3" /><p className="text-sm text-[#333]">No hay bÃºsquedas activas</p></div>
               )}
             </div>
           )}
@@ -200,7 +202,7 @@ function OfertaCard({ oferta, yaPost, estado, postulando, mensaje, setMensaje, o
           </div>
         )}
         <h3 className="font-semibold text-white text-sm mb-1">{oferta.titulo}</h3>
-        <p className="text-[11px] text-[#444]">{oferta.ciudad} {oferta.tipo_empleo && `· ${TIPO_LABEL[oferta.tipo_empleo]}`}</p>
+        <p className="text-[11px] text-[#444]">{oferta.ciudad} {oferta.tipo_empleo && `Â· ${TIPO_LABEL[oferta.tipo_empleo]}`}</p>
         {oferta.skills?.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
             {oferta.skills.map((s: string) => <span key={s} className="text-[10px] bg-[#0a1a0a] text-[#22c55e] border border-[#1a3a1a] px-2 py-0.5 rounded-full">{s}</span>)}
@@ -211,7 +213,7 @@ function OfertaCard({ oferta, yaPost, estado, postulando, mensaje, setMensaje, o
           {!yaPost ? (
             postulando ? (
               <div className="space-y-2">
-                <textarea className="textarea text-sm py-2.5" rows={2} value={mensaje} onChange={e => setMensaje(e.target.value)} placeholder="Mensaje opcional…" />
+                <textarea className="textarea text-sm py-2.5" rows={2} value={mensaje} onChange={e => setMensaje(e.target.value)} placeholder="Mensaje opcionalâ€¦" />
                 <div className="flex gap-2">
                   <button onClick={onConfirmar} className="btn-primary flex-1 text-xs py-2.5 gap-1.5" style={{ WebkitTapHighlightColor: "transparent" }}><Send size={13} /> Enviar</button>
                   <button onClick={onCancelar} className="btn-secondary text-xs py-2.5 px-4" style={{ WebkitTapHighlightColor: "transparent" }}>Cancelar</button>
@@ -234,3 +236,5 @@ function OfertaCard({ oferta, yaPost, estado, postulando, mensaje, setMensaje, o
     </div>
   );
 }
+
+
