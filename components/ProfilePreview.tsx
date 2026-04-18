@@ -1,6 +1,6 @@
 ﻿'use client'
 
-export default function ProfilePreview() {
+export function ProfilePreview() {
   return (
     <div className="bg-neutral-900 rounded-2xl border border-white/10 w-full max-w-2xl mx-auto p-6">
       <h2 className="text-white text-xl font-bold">Andres Torres</h2>
