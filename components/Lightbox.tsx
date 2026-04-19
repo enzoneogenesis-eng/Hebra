@@ -22,8 +22,12 @@ export function Lightbox({ trabajos, initialIndex, onClose }: Props) {
 
   // Cerrar con fade out
   function close() {
+    console.log("LIGHTBOX close() EJECUTADO");
     setVisible(false);
-    setTimeout(onClose, 200);
+    setTimeout(() => {
+      console.log("LIGHTBOX onClose() EJECUTADO");
+      onClose();
+    }, 200);
   }
 
   const prev = useCallback(() => setIndex(i => (i - 1 + trabajos.length) % trabajos.length), [trabajos.length]);
