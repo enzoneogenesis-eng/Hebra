@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
+import { InstallPrompt } from "@/components/InstallPrompt";
 
 export const viewport: Viewport = {
   themeColor: "#0a0a0a",
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen" style={{ background: "#0a0a0a" }}>
         <Navbar />
+        <InstallPrompt />
         <main className="pt-14 pb-20 md:pb-0">{children}</main>
       </body>
     </html>
