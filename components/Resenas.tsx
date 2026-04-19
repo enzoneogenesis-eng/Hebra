@@ -45,15 +45,7 @@ export function Resenas({ barberoId }: { barberoId: string }) {
         supabase.auth.getSession(),
       ]);
       setResenas((r as any) ?? []);
-      if (session) {
-        const { data: p } = await supabase.from("profiles").select("id, tipo").eq("id", session.user.id).single();
-        if (p?.tipo === "cliente") {
-          setEsCliente(true);
-          setClienteId(p.id);
-          const mia = (r as any)?.find((x: any) => x.profiles && session.user.id === x.cliente_id);
-          if (mia) setMiResena(mia);
-        }
-      }
+      if (session && session.user.id !== barberoId) { setEsCliente(true); setClienteId(session.user.id); const mia = (r as any)?.find((x: any) => session.user.id === x.cliente_id); if (mia) setMiResena(mia); }
       setLoading(false);
     }
     load();
@@ -129,7 +121,7 @@ export function Resenas({ barberoId }: { barberoId: string }) {
             placeholder="¿Cómo fue tu experiencia? (opcional)" />
           <div className="flex gap-2">
             <button onClick={guardarResena} disabled={saving} className="btn-primary flex-1 text-sm">
-              {saving ? "Guardando…" : "Publicar reseña"}
+              {saving ? "Guardando..." : "Publicar reseña"}
             </button>
             <button onClick={() => setShowForm(false)} className="btn-secondary text-sm px-4">
               Cancelar
