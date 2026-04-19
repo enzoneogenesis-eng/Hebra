@@ -109,6 +109,7 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
           { id: "ofertas",   label: `Búsquedas (${ofertas.length})` },
           { id: "finanzas",  label: `Finanzas` },
           { id: "resenas",   label: `Reseñas` },
+          { id: "perfil",    label: `Perfil` },
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id as any)}
             className={`flex-1 py-2.5 text-sm font-semibold rounded-xl transition-all ${
