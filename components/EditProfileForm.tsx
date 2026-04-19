@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
-import { Camera, Save } from "lucide-react";
+import { Camera, Save, Sparkles } from "lucide-react";
 import { SkillsPicker } from "./SkillsPicker";
 import { CiudadSelector } from "./CiudadSelector";
 import { CIUDADES } from "@/lib/ciudades";
@@ -31,6 +31,42 @@ export function EditProfileForm({ profile, onUpdate }: { profile: Profile; onUpd
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving]       = useState(false);
   const [msg, setMsg]             = useState<{ type: "ok"|"err"; text: string } | null>(null);
+  const [generandoBio, setGenerandoBio] = useState(false);
+
+  async function generarBio() {
+    if (!form.nombre || !form.nombre.trim()) {
+      setMsg({ type: "err", text: "Poné tu nombre antes de generar la bio" });
+      return;
+    }
+    setGenerandoBio(true);
+    setMsg(null);
+    try {
+      const { count } = await supabase
+        .from("trabajos")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", profile.id);
+
+      const res = await fetch("/api/generate-bio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: form.nombre,
+          tipo: profile.tipo,
+          ubicacion: ciudad || null,
+          skills: skills,
+          cantidadTrabajos: count ?? 0,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Error");
+      setForm(f => ({ ...f, bio: data.bio }));
+      setMsg({ type: "ok", text: "Bio generada. Editala si queres antes de guardar." });
+    } catch (e: any) {
+      setMsg({ type: "err", text: e.message ?? "No se pudo generar la bio" });
+    } finally {
+      setGenerandoBio(false);
+    }
+  }
 
   async function handleFoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -125,7 +161,15 @@ export function EditProfileForm({ profile, onUpdate }: { profile: Profile; onUpd
         </div>
 
         <div>
-          <label className="block text-[10px] font-bold text-[#bbb] uppercase tracking-widest mb-1.5">Bio</label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-[10px] font-bold text-[#bbb] uppercase tracking-widest">Bio</label>
+            <button type="button" onClick={generarBio} disabled={generandoBio}
+              className="flex items-center gap-1 text-[10px] font-bold text-[#22c55e] border border-[#1a3a1a] bg-[#0a1a0a] px-2 py-1 rounded-full active:scale-95 transition disabled:opacity-50"
+              style={{ WebkitTapHighlightColor: "transparent" }}>
+              <Sparkles size={11} />
+              {generandoBio ? "Generando..." : "Generar con IA"}
+            </button>
+          </div>
           <textarea className="textarea" rows={3} value={form.bio} onChange={set("bio")}
             placeholder="Contá sobre tu experiencia, especialidad y estilo…" />
         </div>
