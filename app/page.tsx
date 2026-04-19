@@ -35,15 +35,18 @@ export default async function HomePage() {
           La red profesional del corte
         </div>
         <h1 className="font-['Bebas_Neue'] text-[58px] sm:text-[80px] md:text-[110px] leading-none tracking-tight text-white mb-4">
-          TU PRÓXIMO<br />BARBERO<br />
-          <span className="text-[#333]">TE ESPERA.</span>
+          NO ES INSTAGRAM.<br />
+          <span className="text-[#22c55e]">ES TU CARRERA.</span>
         </h1>
-        <p className="text-[#888] text-base md:text-lg max-w-lg mb-6 leading-relaxed font-light">
-          Encontrá los mejores barberos y salones. Mostrá tu trabajo y conectá con clientes.
+        <p className="text-[#888] text-base md:text-lg max-w-xl mb-3 leading-relaxed font-light">
+          La red donde los mejores barberos de Argentina muestran su trabajo, llenan su agenda y dejan de depender del boca en boca.
+        </p>
+        <p className="text-[#555] text-sm max-w-xl mb-6 leading-relaxed">
+          Para barberos, salones y clientes que entienden que cortar el pelo es un oficio serio.
         </p>
         <div className="flex flex-col sm:flex-row gap-3">
-          <Link href="/register" className="btn-primary w-full sm:w-auto px-8">Crear perfil gratis</Link>
-          <Link href="/search"   className="btn-secondary w-full sm:w-auto px-8">Explorar barberos →</Link>
+          <Link href="/register" className="btn-primary w-full sm:w-auto px-8">Mostrar mi trabajo</Link>
+          <Link href="/search"   className="btn-secondary w-full sm:w-auto px-8">Buscar barbero →</Link>
         </div>
       </section>
 
@@ -97,38 +100,85 @@ export default async function HomePage() {
         <ProfilePreview />
       </div>
 
-      {/* FEATURES */}
-      <section className="border-y border-[#1e1e1e] bg-[#111]">
-        <div className="max-w-6xl mx-auto px-4 md:px-6 py-10 grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {[
-            { icon: "✂", title: "Portfolio visual",   desc: "Subí fotos de tus cortes y construí tu reputación." },
-            { icon: "⊙", title: "Buscador por zona",  desc: "Encontrá barberos por ciudad y especialidad." },
-            { icon: "▣", title: "Ofertas de trabajo", desc: "Salones buscan barberos. Postulate al instante." },
-          ].map((f, i) => (
-            <div key={i} className="flex gap-4 p-4 bg-[#0a0a0a] rounded-2xl border border-[#1e1e1e]">
-              <span className="text-[#22c55e] text-xl mt-0.5">{f.icon}</span>
-              <div>
-                <h3 className="font-semibold text-white text-sm mb-1">{f.title}</h3>
-                <p className="text-xs text-[#555] leading-relaxed">{f.desc}</p>
+      {/* PARA VOS SI SOS... */}
+      <section className="border-y border-[#1e1e1e] bg-[#0a0a0a]">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 py-12 md:py-16">
+          <div className="mb-8 md:mb-10">
+            <p className="text-[10px] font-bold text-[#22c55e] uppercase tracking-widest mb-2">Para vos si sos...</p>
+            <h2 className="font-['Bebas_Neue'] text-4xl md:text-5xl text-white leading-tight">
+              ELEGÍ CÓMO HEBRA<br />TRABAJA PARA VOS.
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* BARBERO */}
+            <div className="bg-[#111] border border-[#1e1e1e] rounded-3xl p-6 flex flex-col hover:border-[#22c55e]/40 transition-colors">
+              <div className="mb-4">
+                <span className="inline-block text-[10px] font-bold text-[#22c55e] uppercase tracking-widest bg-[#22c55e]/10 border border-[#22c55e]/20 px-2.5 py-1 rounded-full">Barbero</span>
               </div>
+              <h3 className="font-['Bebas_Neue'] text-3xl text-white leading-tight mb-3">
+                TUS CLIENTES NO ESTÁN<br />EN INSTAGRAM.<br />
+                <span className="text-[#22c55e]">ESTÁN BUSCANDO.</span>
+              </h3>
+              <p className="text-sm text-[#888] leading-relaxed mb-6 flex-1">
+                Armá un portfolio que venda solo. Mostrale a cada cliente nuevo por qué sos la opción correcta antes de que te escriba. Tu trabajo, en un lugar donde los likes no importan: importa que te contraten.
+              </p>
+              <Link href="/register" className="btn-primary text-sm w-full justify-center">
+                Crear mi perfil gratis →
+              </Link>
             </div>
-          ))}
+
+            {/* SALÓN */}
+            <div className="bg-[#111] border border-[#1e1e1e] rounded-3xl p-6 flex flex-col hover:border-[#22c55e]/40 transition-colors">
+              <div className="mb-4">
+                <span className="inline-block text-[10px] font-bold text-[#22c55e] uppercase tracking-widest bg-[#22c55e]/10 border border-[#22c55e]/20 px-2.5 py-1 rounded-full">Salón</span>
+              </div>
+              <h3 className="font-['Bebas_Neue'] text-3xl text-white leading-tight mb-3">
+                CONTRATAR MAL<br />
+                <span className="text-[#22c55e]">CUESTA CARO.</span>
+              </h3>
+              <p className="text-sm text-[#888] leading-relaxed mb-6 flex-1">
+                Dejá de scrollear historias buscando barberos. En Hebra ves portfolios reales, especialidades concretas y zonas de trabajo. Publicás una búsqueda y los barberos de tu ciudad se postulan con su trabajo a la vista. Elegís tranquilo.
+              </p>
+              <Link href="/register" className="btn-primary text-sm w-full justify-center">
+                Publicar una búsqueda →
+              </Link>
+            </div>
+
+            {/* CLIENTE */}
+            <div className="bg-[#111] border border-[#1e1e1e] rounded-3xl p-6 flex flex-col hover:border-[#22c55e]/40 transition-colors">
+              <div className="mb-4">
+                <span className="inline-block text-[10px] font-bold text-[#22c55e] uppercase tracking-widest bg-[#22c55e]/10 border border-[#22c55e]/20 px-2.5 py-1 rounded-full">Cliente</span>
+              </div>
+              <h3 className="font-['Bebas_Neue'] text-3xl text-white leading-tight mb-3">
+                NUNCA MÁS SALÍS<br />
+                <span className="text-[#22c55e]">ARREPENTIDO.</span>
+              </h3>
+              <p className="text-sm text-[#888] leading-relaxed mb-6 flex-1">
+                Filtrá por barrio, por estilo, por especialidad. Mirá trabajos reales antes de ir. Reservá con el que te convence y olvidate de la sorpresa del espejo.
+              </p>
+              <Link href="/search" className="btn-secondary text-sm w-full justify-center">
+                Encontrar mi barbero →
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* CTA FINAL */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 py-10">
+      <section className="max-w-6xl mx-auto px-4 md:px-6 py-10 md:py-14">
         <div className="border border-[#22c55e]/20 bg-[#0a1a0a] rounded-3xl p-8 md:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
-            <h2 className="font-['Bebas_Neue'] text-4xl md:text-5xl text-white leading-tight mb-2">
-              ¿SOS BARBERO<br />O TENÉS UN SALÓN?
+            <h2 className="font-['Bebas_Neue'] text-4xl md:text-5xl text-white leading-tight mb-3">
+              LA PREGUNTA NO ES<br />SI VAS A ESTAR.<br />
+              <span className="text-[#22c55e]">ES CUÁNDO.</span>
             </h2>
-            <p className="text-[#555] text-sm leading-relaxed">
-              Creá tu perfil y hacete encontrar por miles de clientes.
+            <p className="text-[#888] text-sm leading-relaxed max-w-md">
+              Cada día hay más barberos, más salones y más clientes en Hebra. Crear tu perfil es gratis y lleva 2 minutos. No tener perfil también tiene un costo: el de los clientes que te eligen a otro porque no te encuentran.
             </p>
           </div>
           <Link href="/register" className="btn-primary px-8 w-full md:w-auto whitespace-nowrap">
-            Empezar ahora →
+            Crear mi perfil ahora →
           </Link>
         </div>
       </section>

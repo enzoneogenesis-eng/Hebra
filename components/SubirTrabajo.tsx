@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Upload } from "lucide-react";
+import { Upload, ImagePlus } from "lucide-react";
 import type { Trabajo } from "@/types";
 
 interface Props {
@@ -31,17 +31,38 @@ export function SubirTrabajo({ userId, onSubido, onUpload }: Props) {
   }
 
   return (
-    <div className="bg-white border border-[#ebebeb] rounded-3xl p-4 mb-4"
-      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-      <p className="text-[10px] font-bold text-[#bbb] uppercase tracking-widest mb-3">Subir foto al portfolio</p>
-      <input className="input mb-3 text-sm" value={descripcion} onChange={e => setDesc(e.target.value)}
-        placeholder="Descripción del corte (opcional)" />
-      <label className="btn-secondary w-full cursor-pointer flex items-center gap-2 justify-center"
-        style={{ WebkitTapHighlightColor: "transparent" }}>
-        <Upload size={15} />
-        {uploading ? "Subiendo…" : "Elegir foto"}
+    <div className="bg-[#111] border border-[#1e1e1e] rounded-3xl p-5 mb-4">
+      <div className="flex items-center gap-2 mb-4">
+        <ImagePlus size={16} className="text-[#22c55e]" />
+        <p className="text-[10px] font-bold text-[#888] uppercase tracking-widest">Subir foto al portfolio</p>
+      </div>
+
+      <input
+        className="w-full bg-[#0a0a0a] border border-[#1e1e1e] text-white text-sm rounded-xl px-4 py-3 mb-3 placeholder:text-[#444] focus:outline-none focus:border-[#22c55e]/40 transition-colors"
+        value={descripcion}
+        onChange={e => setDesc(e.target.value)}
+        placeholder="Descripción del corte (opcional)"
+      />
+
+      <label
+        className={`
+          w-full cursor-pointer flex items-center justify-center gap-2
+          rounded-xl py-3.5 text-sm font-semibold
+          transition-all
+          ${uploading
+            ? "bg-[#1e1e1e] text-[#666] cursor-wait"
+            : "bg-[#22c55e] text-black hover:bg-[#16a34a]"}
+        `}
+        style={{ WebkitTapHighlightColor: "transparent" }}
+      >
+        <Upload size={16} />
+        {uploading ? "Subiendo..." : "Elegir foto para subir"}
         <input type="file" accept="image/*" className="hidden" onChange={handleFile} disabled={uploading} />
       </label>
+
+      <p className="text-[10px] text-[#444] mt-3 text-center">
+        JPG o PNG · hasta 8 MB
+      </p>
     </div>
   );
 }

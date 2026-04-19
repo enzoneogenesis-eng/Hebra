@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Home, Search, Briefcase, User } from "lucide-react";
+import { Home, Search, LayoutDashboard, User, LogOut } from "lucide-react";
 
 export function Navbar() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -42,18 +42,32 @@ export function Navbar() {
 
           <div className="flex items-center gap-2">
             {loggedIn ? (
-              <button onClick={signOut}
-                className="text-xs font-medium text-[#666] px-3 py-2 rounded-full border border-[#1e1e1e] active:scale-95 transition"
-                style={{ WebkitTapHighlightColor: "transparent", minHeight: "36px" }}>
-                Salir
-              </button>
+              <>
+                <Link
+                  href="/dashboard"
+                  className="text-xs font-bold text-black px-3 py-2 rounded-full bg-[#22c55e] hover:bg-[#16a34a] active:scale-95 transition flex items-center gap-1.5"
+                  style={{ WebkitTapHighlightColor: "transparent", minHeight: "36px" }}
+                >
+                  <LayoutDashboard size={13} />
+                  Mi panel
+                </Link>
+                <button
+                  onClick={signOut}
+                  title="Salir"
+                  aria-label="Salir"
+                  className="text-[#666] hover:text-white p-2 rounded-full border border-[#1e1e1e] active:scale-95 transition flex items-center justify-center"
+                  style={{ WebkitTapHighlightColor: "transparent", minHeight: "36px", minWidth: "36px" }}
+                >
+                  <LogOut size={14} />
+                </button>
+              </>
             ) : (
               <div className="flex gap-2">
                 <Link href="/login" className="text-xs font-medium text-[#888] px-3 py-2 rounded-full border border-[#1e1e1e] active:scale-95 transition"
                   style={{ WebkitTapHighlightColor: "transparent", minHeight: "36px", display: "flex", alignItems: "center" }}>
                   Ingresar
                 </Link>
-                <Link href="/register" className="text-xs font-bold text-black px-3 py-2 rounded-full bg-[#22c55e] active:scale-95 transition"
+                <Link href="/register" className="text-xs font-bold text-black px-3 py-2 rounded-full bg-[#22c55e] hover:bg-[#16a34a] active:scale-95 transition"
                   style={{ WebkitTapHighlightColor: "transparent", minHeight: "36px", display: "flex", alignItems: "center" }}>
                   Registrarse
                 </Link>
@@ -69,10 +83,10 @@ export function Navbar() {
                  paddingBottom: "env(safe-area-inset-bottom, 8px)" }}>
         <div className="grid grid-cols-4 h-14">
           {[
-            { href: "/",          icon: Home,      label: "Inicio"   },
-            { href: "/search",    icon: Search,    label: "Explorar" },
-            { href: loggedIn ? "/dashboard" : "/register", icon: Briefcase, label: "Trabajo" },
-            { href: loggedIn ? "/dashboard" : "/login",    icon: User,      label: "Perfil"  },
+            { href: "/",                                    icon: Home,            label: "Inicio"   },
+            { href: "/search",                              icon: Search,          label: "Explorar" },
+            { href: loggedIn ? "/dashboard" : "/register",  icon: LayoutDashboard, label: loggedIn ? "Panel" : "Unirme" },
+            { href: loggedIn ? "/dashboard" : "/login",     icon: User,            label: loggedIn ? "Perfil" : "Entrar" },
           ].map((item, i) => {
             const Icon = item.icon;
             const isOn = isActive(item.href);
