@@ -22,12 +22,8 @@ export function Lightbox({ trabajos, initialIndex, onClose }: Props) {
 
   // Cerrar con fade out
   function close() {
-    console.log("LIGHTBOX close() EJECUTADO");
     setVisible(false);
-    setTimeout(() => {
-      console.log("LIGHTBOX onClose() EJECUTADO");
-      onClose();
-    }, 200);
+    setTimeout(onClose, 200);
   }
 
   const prev = useCallback(() => setIndex(i => (i - 1 + trabajos.length) % trabajos.length), [trabajos.length]);
@@ -93,7 +89,7 @@ export function Lightbox({ trabajos, initialIndex, onClose }: Props) {
       {/* Botón cerrar */}
       <button
         onClick={e => { e.stopPropagation(); close(); }}
-        className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full text-white transition-all hover:bg-white/20 active:scale-90"
+        className="absolute top-4 right-4 w-12 h-12 z-[60] flex items-center justify-center rounded-full text-white transition-all hover:bg-white/20 active:scale-90"
         style={{ background: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)" }}
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
