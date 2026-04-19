@@ -4,18 +4,26 @@ import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { EditProfileForm } from "./EditProfileForm";
+import { SubirTrabajo } from "./SubirTrabajo";
+import { TrabajoCard } from "./TrabajoCard";
 import { PublicarOferta } from "./PublicarOferta";
 import { CIUDADES } from "@/lib/ciudades";
 import { Briefcase, Users, Eye, Check, X, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
-import type { Profile, Oferta, Postulacion } from "@/types";
+import type { Profile, Oferta, Postulacion, Trabajo } from "@/types";
 
 export function DashboardSalon({ profile }: { profile: Profile }) {
   const [ofertas, setOfertas]             = useState<Oferta[]>([]);
+  const [trabajos, setTrabajos]           = useState<Trabajo[]>([]);
   const [postulaciones, setPostulaciones] = useState<Record<string, Postulacion[]>>({});
   const [expandida, setExpandida]         = useState<string | null>(null);
   const [loading, setLoading]             = useState(true);
 
-  useEffect(() => { loadOfertas(); }, []);
+  useEffect(() => { loadOfertas(); loadTrabajos(); }, []);
+
+  async function loadTrabajos() {
+    const { data } = await supabase.from("trabajos").select("*").eq("user_id", profile.id).order("created_at", { ascending: false });
+    setTrabajos((data as Trabajo[]) ?? []);
+  }
 
   async function loadOfertas() {
     setLoading(true);
@@ -81,6 +89,25 @@ export function DashboardSalon({ profile }: { profile: Profile }) {
 
   return (
     <div>
+      {/* Portfolio del salon */}
+      <section className="mb-6">
+        <div className="mb-3">
+          <h2 className="font-['Bebas_Neue'] text-2xl text-white leading-tight">PORTFOLIO DEL SALON</h2>
+          <p className="text-xs text-[#666] mt-1">Subi fotos de tu local, tu equipo y los trabajos realizados.</p>
+        </div>
+        <SubirTrabajo userId={profile.id} onSubido={t => setTrabajos(prev => [t, ...prev])} />
+        {trabajos.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+            {trabajos.map(t => <TrabajoCard key={t.id} trabajo={t} />)}
+          </div>
+        ) : (
+          <div className="text-center py-8 bg-[#111] border border-[#1e1e1e] rounded-3xl mt-2">
+            <p className="text-sm text-[#666]">Todavia no subiste ninguna foto</p>
+            <p className="text-xs text-[#444] mt-1">Las fotos que subas aparecen en tu perfil publico</p>
+          </div>
+        )}
+      </section>
+
       <EditProfileForm profile={profile} />
 
       {/* Publicar nueva búsqueda */}
