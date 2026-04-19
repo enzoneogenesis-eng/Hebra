@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -15,8 +15,8 @@ import { Briefcase, MapPin, Send, Check, X, ChevronDown, ChevronUp } from "lucid
 import type { Profile, Trabajo, Oferta, Postulacion } from "@/types";
 
 const TIPO_LABEL: Record<string, string> = {
-  relacion_dependencia: "Relación de dependencia",
-  autonomo: "Autónomo",
+  relacion_dependencia: "RelaciÃ³n de dependencia",
+  autonomo: "AutÃ³nomo",
   porcentaje: "Por porcentaje",
   alquiler_silla: "Alquiler de silla",
 };
@@ -95,11 +95,11 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
       {(profile as any).verificado && (
         <div className="mb-4 flex items-center gap-2">
           <BadgeVerificado size="md" />
-          <span className="text-xs text-[#444]">Tu perfil está verificado por Hebra</span>
+          <span className="text-xs text-[#444]">Tu perfil estÃ¡ verificado por Hebra</span>
         </div>
       )}
 
-      {/* Estadísticas */}
+      {/* EstadÃ­sticas */}
       <EstadisticasBarbero barberoId={profile.id} />
 
       <EditProfileForm profile={profile} onUpdate={() => loadAll()} />
@@ -108,9 +108,7 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
       <div className="flex gap-1 mb-5 bg-[#111] border border-[#1e1e1e] p-1 rounded-2xl">
         {[
           { id: "portfolio", label: `Portfolio (${trabajos.length})` },
-          { id: "ofertas",   label: `Búsquedas (${ofertas.length})` },
-          { id: "finanzas",  label: `Finanzas` },
-          { id: "resenas",   label: `Reseñas` },
+          { id: "ofertas",   label: `BÃºsquedas (${ofertas.length})` },
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id as any)}
             className={`flex-1 py-2.5 text-sm font-semibold rounded-xl transition-all ${
@@ -130,7 +128,7 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
               <SubirTrabajo userId={profile.id} onSubido={t => setTrabajos(prev => [t, ...prev])} />
               {trabajos.length > 0
                 ? <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">{trabajos.map(t => <TrabajoCard key={t.id} trabajo={t} />)}</div>
-                : <div className="text-center py-12"><p className="text-sm text-[#333]">Todavía no subiste fotos</p></div>
+                : <div className="text-center py-12"><p className="text-sm text-[#333]">TodavÃ­a no subiste fotos</p></div>
               }
             </div>
           )}
@@ -145,7 +143,7 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
                       <div key={p.id} className="flex items-center justify-between gap-3 py-2 border-b border-[#1a1a1a] last:border-0">
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-white truncate">{(p.ofertas as any)?.titulo ?? "Oferta"}</p>
-                          <p className="text-[11px] text-[#444]">{(p.ofertas as any)?.profiles?.nombre ?? "Salón"}</p>
+                          <p className="text-[11px] text-[#444]">{(p.ofertas as any)?.profiles?.nombre ?? "SalÃ³n"}</p>
                         </div>
                         <span className="text-[10px] font-bold px-2 py-1 rounded-full flex-shrink-0"
                           style={{ background: (ESTADO_COLOR[p.estado] ?? "#999") + "20", color: ESTADO_COLOR[p.estado] ?? "#999" }}>
@@ -168,25 +166,16 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
 
               {ofertasOtras.length > 0 && (
                 <div>
-                  <p className="text-[10px] font-bold text-[#444] uppercase tracking-widest mb-2">Otras búsquedas</p>
+                  <p className="text-[10px] font-bold text-[#444] uppercase tracking-widest mb-2">Otras bÃºsquedas</p>
                   {ofertasOtras.map(o => <OfertaCard key={o.id} oferta={o} yaPost={yaPostulado(o.id)} estado={estadoPost(o.id)} postulando={postulando === o.id} mensaje={mensaje} setMensaje={setMensaje} onPostular={() => postularse(o.id)} onConfirmar={() => confirmarPostulacion(o.id)} onCancelar={() => { setPostulando(null); setMensaje(""); }} onRetirar={() => retirarPostulacion(o.id)} expandida={expandida === o.id} onToggle={() => setExpandida(expandida === o.id ? null : o.id)} TIPO_LABEL={TIPO_LABEL} ESTADO_COLOR={ESTADO_COLOR} ESTADO_LABEL={ESTADO_LABEL} />)}
                 </div>
               )}
 
               {ofertas.length === 0 && (
-                <div className="text-center py-12"><Briefcase size={28} className="text-[#222] mx-auto mb-3" /><p className="text-sm text-[#333]">No hay búsquedas activas</p></div>
+                <div className="text-center py-12"><Briefcase size={28} className="text-[#222] mx-auto mb-3" /><p className="text-sm text-[#333]">No hay bÃºsquedas activas</p></div>
               )}
             </div>
           )}
-
-          {tab === "finanzas" && (
-            <DashboardFinanzas />
-          )}
-
-          {tab === "resenas" && (
-            <ResenasDashboard barberoId={profile.id} barberoNombre={profile.nombre ?? "Barbero"} />
-          )}
-
         </>
       )}
     </div>
