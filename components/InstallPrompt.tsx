@@ -36,20 +36,19 @@ export function InstallPrompt() {
       }
     } catch {}
 
-    // Detectar iOS (iPhone/iPad/iPod) — Safari en iOS no dispara beforeinstallprompt
-    const ua = window.navigator.userAgent;
-    const iOS = /iPhone|iPad|iPod/i.test(ua)
-      || (ua.includes("Mac") && "ontouchend" in document);
-
-    if (iOS) {
+    // Estrategia: esperamos beforeinstallprompt. Si llega (Android/Chrome), mostramos boton.
+    // Si NO llega en 2 segundos, asumimos que no hay instalacion nativa disponible
+    // (iOS Safari, Firefox, etc.) y mostramos las instrucciones manuales.
+    const fallbackTimer = setTimeout(() => {
       setIsIOS(true);
       setVisible(true);
-      return;
-    }
+    }, 2000);
 
-    // Android/Chrome: esperar el evento beforeinstallprompt
+    // Android/Chrome: si beforeinstallprompt llega, cancelamos el fallback y mostramos boton
     function onBIP(e: Event) {
       e.preventDefault();
+      clearTimeout(fallbackTimer);
+      setIsIOS(false);
       setDeferredPrompt(e as BIPEvent);
       setVisible(true);
     }
@@ -63,6 +62,7 @@ export function InstallPrompt() {
     window.addEventListener("appinstalled", onInstalled);
 
     return () => {
+      clearTimeout(fallbackTimer);
       window.removeEventListener("beforeinstallprompt", onBIP);
       window.removeEventListener("appinstalled", onInstalled);
     };
