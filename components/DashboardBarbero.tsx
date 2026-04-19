@@ -26,7 +26,7 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
   const [trabajos, setTrabajos]       = useState<Trabajo[]>([]);
   const [ofertas, setOfertas]         = useState<Oferta[]>([]);
   const [misPostulaciones, setMisPost] = useState<Postulacion[]>([]);
-  const [tab, setTab]                 = useState<"portfolio"|"ofertas"|"finanzas"|"resenas">("portfolio");
+  const [tab, setTab]                 = useState<"portfolio"|"ofertas"|"finanzas"|"resenas"|"perfil">("portfolio");
   const [loading, setLoading]         = useState(true);
   const [postulando, setPostulando]   = useState<string | null>(null);
   const [mensaje, setMensaje]         = useState("");
@@ -101,8 +101,6 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
 
       {/* Estadísticas */}
       <EstadisticasBarbero barberoId={profile.id} />
-
-      <EditProfileForm profile={profile} onUpdate={() => loadAll()} />
 
       {/* Tabs */}
       <div className="flex gap-1 mb-5 bg-[#111] border border-[#1e1e1e] p-1 rounded-2xl">
@@ -185,6 +183,10 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
 
           {tab === "resenas" && (
             <ResenasDashboard barberoId={profile.id} barberoNombre={profile.nombre ?? "Barbero"} />
+          )}
+
+          {tab === "perfil" && (
+            <EditProfileForm profile={profile} onUpdate={() => loadAll()} />
           )}
 
         </>
