@@ -95,24 +95,55 @@ export function InstallPrompt() {
     >
       <div className="bg-[#0a0a0a] border border-[#22c55e]/40 rounded-2xl p-4 shadow-2xl"
         style={{ boxShadow: "0 10px 40px rgba(34,197,94,0.2)" }}>
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#22c55e] flex items-center justify-center flex-shrink-0">
-            <Download size={20} className="text-black" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-white leading-tight mb-1">
-              Instala Hebra en tu celular
-            </p>
-            {isIOS ? (
-              <p className="text-xs text-[#888] leading-snug">
-                Toca <Share size={12} className="inline mx-0.5 -mt-0.5" /> abajo y despues &quot;Agregar a pantalla de inicio&quot;
+
+        {isIOS ? (
+          <>
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <p className="text-sm font-bold text-white leading-tight">
+                Como instalar Hebra en tu iPhone
               </p>
-            ) : (
+              <button
+                onClick={dismiss}
+                aria-label="Cerrar"
+                className="text-[#666] hover:text-white p-1 -mt-1 -mr-1 transition flex-shrink-0"
+                style={{ WebkitTapHighlightColor: "transparent" }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <ol className="space-y-2.5">
+              <li className="flex items-center gap-2.5 text-xs text-[#aaa]">
+                <span className="w-5 h-5 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] text-[10px] font-bold text-[#22c55e] flex items-center justify-center flex-shrink-0">1</span>
+                <span className="flex items-center gap-1.5 flex-wrap">
+                  Toca el boton
+                  <span className="inline-flex items-center justify-center w-6 h-6 bg-[#1a1a1a] border border-[#2a2a2a] rounded-md">
+                    <Share size={13} className="text-[#22c55e]" />
+                  </span>
+                  de Safari (abajo)
+                </span>
+              </li>
+              <li className="flex items-center gap-2.5 text-xs text-[#aaa]">
+                <span className="w-5 h-5 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] text-[10px] font-bold text-[#22c55e] flex items-center justify-center flex-shrink-0">2</span>
+                <span>Busca <b className="text-white font-semibold">Agregar a pantalla de inicio</b></span>
+              </li>
+              <li className="flex items-center gap-2.5 text-xs text-[#aaa]">
+                <span className="w-5 h-5 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] text-[10px] font-bold text-[#22c55e] flex items-center justify-center flex-shrink-0">3</span>
+                <span>Toca <b className="text-white font-semibold">Agregar</b> y listo</span>
+              </li>
+            </ol>
+          </>
+        ) : (
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#22c55e] flex items-center justify-center flex-shrink-0">
+              <Download size={20} className="text-black" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-white leading-tight mb-1">
+                Instala Hebra en tu celular
+              </p>
               <p className="text-xs text-[#888] leading-snug mb-3">
                 Accedela como una app nativa, sin pasar por la Play Store
               </p>
-            )}
-            {!isIOS && (
               <button
                 onClick={onInstall}
                 className="w-full bg-[#22c55e] hover:bg-[#16a34a] text-black text-sm font-bold py-2.5 rounded-xl transition active:scale-95"
@@ -120,17 +151,17 @@ export function InstallPrompt() {
               >
                 Instalar ahora
               </button>
-            )}
+            </div>
+            <button
+              onClick={dismiss}
+              aria-label="Cerrar"
+              className="text-[#666] hover:text-white p-1 -mt-1 -mr-1 transition flex-shrink-0"
+              style={{ WebkitTapHighlightColor: "transparent" }}
+            >
+              <X size={18} />
+            </button>
           </div>
-          <button
-            onClick={dismiss}
-            aria-label="Cerrar"
-            className="text-[#666] hover:text-white p-1 -mt-1 -mr-1 transition flex-shrink-0"
-            style={{ WebkitTapHighlightColor: "transparent" }}
-          >
-            <X size={18} />
-          </button>
-        </div>
+        )}
       </div>
     </div>
   );
