@@ -88,7 +88,7 @@ export function Lightbox({ trabajos, initialIndex, onClose }: Props) {
 
       {/* Botón cerrar */}
       <button
-        onClick={close}
+        onClick={e => { e.stopPropagation(); close(); }}
         className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full text-white transition-all hover:bg-white/20 active:scale-90"
         style={{ background: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)" }}
       >
