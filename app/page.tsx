@@ -35,8 +35,8 @@ export default async function HomePage() {
           La red profesional del corte
         </div>
         <h1 className="font-['Bebas_Neue'] text-[58px] sm:text-[80px] md:text-[110px] leading-none tracking-tight text-white mb-4">
-          NO ES INSTAGRAM.<br />
-          <span className="text-[#22c55e]">ES TU CARRERA.</span>
+          BIENVENIDOS<br />
+          <span className="text-[#22c55e]">A HEBRA.</span>
         </h1>
         <p className="text-[#888] text-base md:text-lg max-w-xl mb-3 leading-relaxed font-light">
           La red donde los mejores barberos de Argentina muestran su trabajo, llenan su agenda y dejan de depender del boca en boca.
@@ -104,9 +104,9 @@ export default async function HomePage() {
       <section className="border-y border-[#1e1e1e] bg-[#0a0a0a]">
         <div className="max-w-6xl mx-auto px-4 md:px-6 py-12 md:py-16">
           <div className="mb-8 md:mb-10">
-            <p className="text-[10px] font-bold text-[#22c55e] uppercase tracking-widest mb-2">Para vos si sos...</p>
             <h2 className="font-['Bebas_Neue'] text-4xl md:text-5xl text-white leading-tight">
-              ELEGÍ CÓMO HEBRA<br />TRABAJA PARA VOS.
+              ELEGÍ CÓMO HEBRA<br />
+              <span className="text-[#22c55e]">TRABAJA PARA VOS.</span>
             </h2>
           </div>
 
