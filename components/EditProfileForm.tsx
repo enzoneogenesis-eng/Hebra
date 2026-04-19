@@ -55,12 +55,13 @@ export function EditProfileForm({ profile, onUpdate }: { profile: Profile; onUpd
           ubicacion: ciudad || null,
           skills: skills,
           cantidadTrabajos: count ?? 0,
+          notas: form.bio || null,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Error");
       setForm(f => ({ ...f, bio: data.bio }));
-      setMsg({ type: "ok", text: "Bio generada. Editala si queres antes de guardar." });
+      setMsg({ type: "ok", text: form.bio ? "Bio mejorada a partir de tus notas. Editala si queres." : "Bio generada. Editala antes de guardar." });
     } catch (e: any) {
       setMsg({ type: "err", text: e.message ?? "No se pudo generar la bio" });
     } finally {
