@@ -36,12 +36,12 @@ export function InstallPrompt() {
       }
     } catch {}
 
-    // Detectar iOS (Safari no dispara beforeinstallprompt)
-    const ua = window.navigator.userAgent.toLowerCase();
-    const iOS = /iphone|ipad|ipod/.test(ua) && !(window as any).MSStream;
-    const isSafari = /^((?!chrome|android).)*safari/i.test(window.navigator.userAgent);
+    // Detectar iOS (iPhone/iPad/iPod) — Safari en iOS no dispara beforeinstallprompt
+    const ua = window.navigator.userAgent;
+    const iOS = /iPhone|iPad|iPod/i.test(ua)
+      || (ua.includes("Mac") && "ontouchend" in document);
 
-    if (iOS && isSafari) {
+    if (iOS) {
       setIsIOS(true);
       setVisible(true);
       return;
