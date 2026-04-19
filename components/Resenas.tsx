@@ -41,7 +41,7 @@ export function Resenas({ barberoId }: { barberoId: string }) {
   useEffect(() => {
     async function load() {
       const [{ data: r }, { data: { session } }] = await Promise.all([
-        supabase.from("resenas").select("*, profiles(nombre, foto_url)").eq("barbero_id", barberoId).order("created_at", { ascending: false }),
+        supabase.from("resenas").select("*, profiles!resenas_cliente_id_fkey(nombre, foto_url)").eq("barbero_id", barberoId).order("created_at", { ascending: false }),
         supabase.auth.getSession(),
       ]);
       setResenas((r as any) ?? []);
@@ -57,7 +57,7 @@ export function Resenas({ barberoId }: { barberoId: string }) {
     const { data, error } = await supabase.from("resenas").upsert({
       barbero_id: barberoId, cliente_id: clienteId,
       calificacion: form.calificacion, comentario: form.comentario.trim() || null,
-    }).select("*, profiles(nombre, foto_url)").single();
+    }).select("*, profiles!resenas_cliente_id_fkey(nombre, foto_url)").single();
     if (!error && data) {
       setMiResena(data as any);
       setResenas(r => [data as any, ...r.filter(x => x.id !== (data as any).id)]);
