@@ -214,27 +214,6 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
       {profile.tipo !== "cliente" && (
         <Resenas barberoId={profile.id} />
       )}
-
-      {/* Botón flotante mobile */}
-      {(hasWA || hasIG) && (
-        <div className="fixed bottom-20 left-0 right-0 px-4 md:hidden z-40">
-          {hasWA ? (
-            <a href={`https://wa.me/${waNumber}?text=Hola%20${encodeURIComponent(profile.nombre)}%2C%20te%20contacto%20desde%20Hebra%20%F0%9F%92%88`}
-              target="_blank" rel="noopener noreferrer"
-              className="flex items-center justify-center gap-3 w-full py-4 rounded-full text-black font-bold shadow-lg active:scale-95 transition"
-              style={{ background: "#22c55e", boxShadow: "0 4px 20px rgba(34,197,94,0.4)" }}>
-              <WhatsAppIcon /> Contactar por WhatsApp
-            </a>
-          ) : (
-            <a href={`https://instagram.com/${profile.instagram}`}
-              target="_blank" rel="noopener noreferrer"
-              className="flex items-center justify-center gap-3 w-full py-4 rounded-full text-white font-bold shadow-lg active:scale-95 transition"
-              style={{ background: "linear-gradient(135deg,#f09433,#dc2743,#bc1888)" }}>
-              <Instagram size={20} /> Instagram
-            </a>
-          )}
-        </div>
-      )}
     </div>
   );
 }
