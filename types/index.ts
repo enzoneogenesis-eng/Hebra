@@ -73,3 +73,31 @@ export interface Postulacion {
   profiles?: Profile;
   ofertas?: Oferta;
 }
+
+export interface Disponibilidad {
+  id: string;
+  user_id: string;
+  dias_semana: number[];
+  hora_inicio: string;
+  hora_fin: string;
+  duracion_min: number;
+  creado_en?: string;
+  actualizado_en?: string;
+}
+
+export type EstadoTurno = "pendiente" | "confirmado" | "rechazado" | "cancelado" | "completado";
+
+export interface Turno {
+  id: string;
+  barbero_id: string;
+  cliente_id: string;
+  fecha: string;
+  hora: string;
+  duracion_min: number;
+  estado: EstadoTurno;
+  mensaje: string | null;
+  creado_en?: string;
+  actualizado_en?: string;
+  barbero?: Profile;
+  cliente?: Profile;
+}

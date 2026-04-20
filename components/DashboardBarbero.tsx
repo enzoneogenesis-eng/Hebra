@@ -9,6 +9,8 @@ import { TrabajoCard } from "./TrabajoCard";
 import { Onboarding } from "./Onboarding";
 import { DashboardFinanzas } from "./DashboardFinanzas"
 import { ResenasDashboard } from "./ResenasDashboard"
+import { AgendaBarbero } from "./AgendaBarbero";
+import { TurnosBarbero } from "./TurnosBarbero";
 import { EstadisticasBarbero } from "./EstadisticasBarbero";
 import { BadgeVerificado } from "./BadgeVerificado";
 import { Briefcase, MapPin, Send, Check, X, ChevronDown, ChevronUp } from "lucide-react";
@@ -26,7 +28,7 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
   const [trabajos, setTrabajos]       = useState<Trabajo[]>([]);
   const [ofertas, setOfertas]         = useState<Oferta[]>([]);
   const [misPostulaciones, setMisPost] = useState<Postulacion[]>([]);
-  const [tab, setTab]                 = useState<"portfolio"|"ofertas"|"finanzas"|"resenas"|"perfil">("portfolio");
+  const [tab, setTab]                 = useState<"portfolio"|"ofertas"|"agenda"|"turnos"|"finanzas"|"resenas"|"perfil">("portfolio");
   const [loading, setLoading]         = useState(true);
   const [postulando, setPostulando]   = useState<string | null>(null);
   const [mensaje, setMensaje]         = useState("");
@@ -107,6 +109,8 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
         {[
           { id: "portfolio", label: `Portfolio (${trabajos.length})` },
           { id: "ofertas",   label: `Búsquedas (${ofertas.length})` },
+          { id: "agenda",    label: `Agenda` },
+          { id: "turnos",    label: `Turnos` },
           { id: "finanzas",  label: `Finanzas` },
           { id: "resenas",   label: `Reseñas` },
           { id: "perfil",    label: `Perfil` },
@@ -184,6 +188,14 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
 
           {tab === "resenas" && (
             <ResenasDashboard barberoId={profile.id} barberoNombre={profile.nombre ?? "Barbero"} />
+          )}
+
+          {tab === "agenda" && (
+            <AgendaBarbero profile={profile} />
+          )}
+
+          {tab === "turnos" && (
+            <TurnosBarbero profile={profile} />
           )}
 
           {tab === "perfil" && (

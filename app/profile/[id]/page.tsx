@@ -11,6 +11,8 @@ import { BadgeVerificado } from "@/components/BadgeVerificado";
 import { formatDate } from "@/lib/utils";
 import { MapPin, ArrowLeft, Instagram } from "lucide-react";
 import type { Profile, Trabajo, Oferta } from "@/types";
+import { ReservarTurnoModal } from "@/components/ReservarTurnoModal";
+import { Calendar } from "lucide-react";
 
 const tipoLabel: Record<string, string> = { barbero: "Barbero", salon: "Salón", cliente: "Cliente" };
 
@@ -27,6 +29,8 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
   const [trabajos, setTrabajos] = useState<Trabajo[]>([]);
   const [ofertas, setOfertas]   = useState<Oferta[]>([]);
   const [loading, setLoading]   = useState(true);
+  const [showReservar, setShowReservar] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -42,6 +46,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
 
       // Registrar visita
       const { data: { session } } = await supabase.auth.getSession();
+      setCurrentUserId(session?.user.id ?? null);
       if (p && session?.user.id !== params.id) {
         await supabase.from("visitas").insert({
           barbero_id: params.id,
@@ -141,6 +146,15 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
           </div>
 
           <div className="space-y-3">
+            {profile.tipo === "barbero" && currentUserId && currentUserId !== profile.id && (
+              <button
+                onClick={() => setShowReservar(true)}
+                className="flex items-center justify-center gap-3 w-full py-4 px-6 rounded-full text-black font-bold text-base transition-all active:scale-95 bg-[#1ed760] hover:bg-[#1ed760]/90"
+              >
+                <Calendar size={18} />
+                Reservar turno
+              </button>
+            )}
             {hasWA && (
               <a href={`https://wa.me/${waNumber}?text=Hola%20${encodeURIComponent(profile.nombre)}%2C%20te%20contacto%20desde%20Hebra%20%F0%9F%92%88`}
                 target="_blank" rel="noopener noreferrer"
@@ -213,6 +227,10 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
       {/* Reseñas */}
       {profile.tipo !== "cliente" && (
         <Resenas barberoId={profile.id} />
+      )}
+
+      {showReservar && (
+        <ReservarTurnoModal barbero={profile} onClose={() => setShowReservar(false)} />
       )}
     </div>
   );
