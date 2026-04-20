@@ -5,15 +5,16 @@ import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { EditProfileForm } from "./EditProfileForm";
 import { CiudadSelector } from "./CiudadSelector";
+import { MisTurnosCliente } from "./MisTurnosCliente";
 import { CIUDADES } from "@/lib/ciudades";
-import { Search, Heart, Clock, Bell, BellOff, X } from "lucide-react";
+import { Search, Heart, Clock, Bell, BellOff, X, Calendar } from "lucide-react";
 import type { Profile, Notificacion } from "@/types";
 
 interface FavoritoRow { barbero_id: string; created_at: string; profiles: Profile }
 interface HistorialRow { barbero_id: string; created_at: string; profiles: Profile }
 
 export function DashboardCliente({ profile }: { profile: Profile }) {
-  const [tab, setTab]                   = useState<"favoritos"|"historial"|"notificaciones">("favoritos");
+  const [tab, setTab]                   = useState<"turnos"|"favoritos"|"historial"|"notificaciones">("turnos");
   const [favoritos, setFavoritos]       = useState<FavoritoRow[]>([]);
   const [historial, setHistorial]       = useState<HistorialRow[]>([]);
   const [notifs, setNotifs]             = useState<Notificacion[]>([]);
@@ -99,6 +100,7 @@ export function DashboardCliente({ profile }: { profile: Profile }) {
   }
 
   const TABS = [
+    { id: "turnos",         label: "Mis turnos",     icon: <Calendar size={15} />,  count: 0 },
     { id: "favoritos",      label: "Favoritos",      icon: <Heart size={15} />,      count: favoritos.length },
     { id: "historial",      label: "Visitados",      icon: <Clock size={15} />,      count: historial.length },
     { id: "notificaciones", label: "Notificaciones", icon: <Bell  size={15} />,      count: noLeidas },
@@ -149,7 +151,13 @@ export function DashboardCliente({ profile }: { profile: Profile }) {
           ) : (
             <>
               {/* FAVORITOS */}
-              {tab === "favoritos" && (
+              {tab === "turnos" && (
+                  <div>
+                    <MisTurnosCliente profile={profile} />
+                  </div>
+                )}
+
+                {tab === "favoritos" && (
                 <div>
                   {favoritos.length > 0 ? (
                     <div className="space-y-2">
