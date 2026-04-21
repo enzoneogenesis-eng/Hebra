@@ -14,31 +14,30 @@ export default function ResetPasswordPage() {
   const [invalidLink, setInvalidLink] = useState(false);
 
   useEffect(() => {
+    // Chequeo SINCRONICO del hash apenas carga la pagina.
+    // Si no tiene access_token + type=recovery, es link invalido. Punto.
+    const hash = window.location.hash;
+    const hasValidRecoveryHash = hash.includes("access_token") && hash.includes("type=recovery");
+
+    if (!hasValidRecoveryHash) {
+      setInvalidLink(true);
+      return;
+    }
+
+    // Si el hash es valido, habilitamos el form.
+    // Tambien escuchamos el evento PASSWORD_RECOVERY por si Supabase lo dispara.
+    setReady(true);
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
         setReady(true);
       }
     });
 
-    // fallback: si viene con hash pero el evento no dispara rapido, lo revisamos manual
-    const timer = setTimeout(() => {
-      if (!ready) {
-        const hash = window.location.hash;
-        // Solo validamos si vino del link de recovery (tiene access_token Y type=recovery)
-        if (hash.includes("access_token") && hash.includes("type=recovery")) {
-          setReady(true);
-        } else {
-          // Cualquier otro caso (error, sin hash, solo logueado): link invalido
-          setInvalidLink(true);
-        }
-      }
-    }, 1500);
-
     return () => {
       subscription.unsubscribe();
-      clearTimeout(timer);
     };
-  }, [ready]);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
