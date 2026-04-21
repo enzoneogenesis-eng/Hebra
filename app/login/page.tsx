@@ -52,6 +52,9 @@ export default function LoginPage() {
             <div>
               <label className="block text-[10px] font-bold text-[#444] uppercase tracking-widest mb-1.5">Contraseña</label>
               <input type="password" className="input" value={password} onChange={e => setPassword(e.target.value)} placeholder="Tu contraseña" required autoComplete="current-password" />
+              <div className="text-right mt-2">
+                <Link href="/forgot-password" className="text-xs text-[#22c55e] hover:underline">Olvidaste tu contrasena?</Link>
+              </div>
             </div>
             {error && <p className="text-red-400 text-sm bg-red-900/20 border border-red-900/30 px-4 py-3 rounded-2xl">{error}</p>}
             <button type="submit" className="btn-primary w-full" disabled={loading}>
