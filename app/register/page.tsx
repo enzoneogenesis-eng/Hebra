@@ -46,6 +46,7 @@ export default function RegisterPage() {
   const [ciudad, setCiudad]       = useState("");
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState<string | null>(null);
+  const [registered, setRegistered] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,7 +55,10 @@ export default function RegisterPage() {
 
     const { data, error: signUpError } = await supabase.auth.signUp({
       email, password,
-      options: { data: { tipo, nombre } },
+      options: {
+        data: { tipo, nombre },
+        emailRedirectTo: `${window.location.origin}/dashboard`,
+      },
     });
 
     if (signUpError || !data.user) {
@@ -63,6 +67,7 @@ export default function RegisterPage() {
       return;
     }
 
+    // Upserteamos el profile con los datos extra. Funciona aunque el mail no este confirmado.
     await supabase.from("profiles").upsert({
       id: data.user.id, tipo, nombre,
       telefono:  telefono  || null,
@@ -70,8 +75,15 @@ export default function RegisterPage() {
       ubicacion: ciudad    || null,
     });
 
-    await supabase.auth.signInWithPassword({ email, password });
-    window.location.replace("/dashboard");
+    // Si Confirm sign up esta OFF, hay session y redirigimos directo.
+    // Si esta ON, session es null y mostramos "revisa tu mail".
+    if (data.session) {
+      window.location.replace("/dashboard");
+      return;
+    }
+
+    setRegistered(true);
+    setLoading(false);
   }
 
   const tipoActivo = TIPOS.find(t => t.value === tipo)!;
@@ -121,7 +133,28 @@ export default function RegisterPage() {
           <div className="lg:hidden mb-8">
             <span className="font-['Bebas_Neue'] text-3xl text-[#0a0a0a] tracking-widest">HEBRA</span>
           </div>
-          <h1 className="font-['Bebas_Neue'] text-4xl text-[#0a0a0a] mb-1 tracking-wide">REGISTRARSE</h1>
+          {registered ? (
+            <>
+              <h1 className="font-['Bebas_Neue'] text-4xl text-[#0a0a0a] mb-1 tracking-wide">REVISA TU MAIL</h1>
+              <p className="text-sm text-[#999] mb-8">
+                Te mandamos un link a <span className="text-[#0a0a0a] font-semibold">{email}</span> para confirmar tu cuenta.
+              </p>
+              <div className="bg-[#f5f5f5] border border-[#e5e5e5] rounded-2xl p-5 mb-6">
+                <p className="text-xs text-[#666] leading-relaxed">
+                  Revisa tu bandeja de entrada (y el Spam por las dudas). El link expira en 24 horas. Cuando confirmes vas a poder ingresar a tu cuenta.
+                </p>
+              </div>
+              <Link href="/login" className="btn-primary w-full block text-center py-3.5 text-sm">
+                Volver a ingresar
+              </Link>
+              <p className="text-center text-sm text-[#444] mt-6">
+                No te llego?{" "}
+                <button onClick={() => { setRegistered(false); }} className="text-[#22c55e] font-semibold">Intenta de nuevo</button>
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="font-['Bebas_Neue'] text-4xl text-[#0a0a0a] mb-1 tracking-wide">REGISTRARSE</h1>
           <p className="text-sm text-[#999] mb-8">Gratis. Sin tarjeta de crédito.</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -224,6 +257,8 @@ export default function RegisterPage() {
             ¿Ya tenés cuenta?{" "}
             <Link href="/login" className="text-[#22c55e] font-semibold">Ingresar</Link>
           </p>
+            </>
+          )}
         </div>
       </div>
     </div>
