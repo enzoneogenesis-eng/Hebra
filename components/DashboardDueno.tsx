@@ -2,7 +2,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from "recharts";
-import { DollarSign, Scissors, TrendingUp, CreditCard, Calendar, Store, Banknote, Smartphone, ArrowLeftRight, HelpCircle } from "lucide-react";
+import { DollarSign, Scissors, TrendingUp, CreditCard, Calendar, Store, Banknote, Smartphone, ArrowLeftRight, HelpCircle, MessageCircle } from "lucide-react";
 import type { Profile, Marca, Sucursal, Ingreso, Gasto } from "@/types";
 
 type Periodo = "hoy" | "semana" | "mes";
@@ -27,6 +27,7 @@ export function DashboardDueno({ profile }: { profile: Profile }) {
   const [sucursales, setSucurs]   = useState<Sucursal[]>([]);
   const [ingresos, setIngresos]   = useState<Ingreso[]>([]);
   const [gastos, setGastos]       = useState<Gasto[]>([]);
+  const [contactosWA, setContactosWA] = useState<{ created_at: string; target_user_id: string }[]>([]);
   const [periodo, setPeriodo]     = useState<Periodo>("mes");
   const [loading, setLoading]     = useState(true);
 
@@ -73,6 +74,16 @@ export function DashboardDueno({ profile }: { profile: Profile }) {
         .gte("fecha", desde30.toISOString().slice(0, 10));
       setGastos((gastosData ?? []) as Gasto[]);
     }
+
+    // 5) Contactos WhatsApp (ultimos 30 dias, al perfil del dueno)
+    const { data: contactosData } = await supabase
+      .from("whatsapp_clicks")
+      .select("created_at, target_user_id")
+      .eq("target_user_id", profile.id)
+      .gte("created_at", desde30.toISOString())
+      .order("created_at", { ascending: false });
+    setContactosWA((contactosData ?? []) as { created_at: string; target_user_id: string }[]);
+
     setLoading(false);
   }
 
@@ -92,6 +103,11 @@ export function DashboardDueno({ profile }: { profile: Profile }) {
   const totalGastos    = gastosPeriodo.reduce((a, g) => a + Number(g.monto), 0);
   const ganancia       = facturacion - totalGastos;
   const ticketPromedio = cortes > 0 ? facturacion / cortes : 0;
+  const contactosPeriodo = useMemo(
+    () => contactosWA.filter(c => new Date(c.created_at) >= desde),
+    [contactosWA, periodo]
+  );
+  const totalContactos = contactosPeriodo.length;
 
   const porSucursal = useMemo(() => {
     return sucursales.map(s => {
@@ -165,6 +181,7 @@ export function DashboardDueno({ profile }: { profile: Profile }) {
         <KpiCard icon={<Scissors size={18} />}     label="Cortes"      valor={cortes.toString()}          sub={periodoLabel} />
         <KpiCard icon={<TrendingUp size={18} />}   label="Ganancia"    valor={formatearARS(ganancia)}    sub={`menos ${formatearARS(totalGastos)} gastos`} />
         <KpiCard icon={<CreditCard size={18} />}   label="Ticket prom."valor={formatearARS(ticketPromedio)} sub="por corte" />
+        <KpiCard icon={<MessageCircle size={18} />} label="Contactos WhatsApp" valor={totalContactos.toString()} sub={`via Hebra, ${periodoLabel}`} />
       </div>
 
       {/* Gráfico + Métodos de pago */}
