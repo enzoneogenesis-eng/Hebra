@@ -9,6 +9,7 @@ import { CompartirPerfil } from "@/components/CompartirPerfil";
 import { Resenas } from "@/components/Resenas";
 import { BadgeVerificado } from "@/components/BadgeVerificado";
 import { formatDate } from "@/lib/utils";
+import { trackWhatsAppClick } from "@/lib/trackWhatsAppClick";
 import { MapPin, ArrowLeft, Instagram } from "lucide-react";
 import type { Profile, Trabajo, Oferta } from "@/types";
 import { ReservarTurnoModal } from "@/components/ReservarTurnoModal";
@@ -157,6 +158,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
             )}
             {hasWA && (
               <a href={`https://wa.me/${waNumber}?text=Hola%20${encodeURIComponent(profile.nombre)}%2C%20te%20contacto%20desde%20Hebra%20%F0%9F%92%88`}
+                onClick={() => trackWhatsAppClick({ targetUserId: profile.id, context: "profile" })}
                 target="_blank" rel="noopener noreferrer"
                 className="flex items-center justify-center gap-3 w-full py-4 px-6 rounded-full text-black font-bold text-base transition-all active:scale-95"
                 style={{ background: "#22c55e" }}>
@@ -211,6 +213,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
                   </div>
                   {hasWA && (
                     <a href={`https://wa.me/${waNumber}?text=Hola%2C%20me%20interesa%20la%20oferta%3A%20${encodeURIComponent(o.titulo)}`}
+                      onClick={() => trackWhatsAppClick({ targetUserId: profile.id, context: "oferta", ofertaId: o.id })}
                       target="_blank" rel="noopener noreferrer"
                       className="flex-shrink-0 text-xs font-bold text-black px-4 py-2 rounded-full flex items-center gap-1.5 transition active:scale-95"
                       style={{ background: "#22c55e" }}>
