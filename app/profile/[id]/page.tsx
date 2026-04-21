@@ -146,7 +146,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
           </div>
 
           <div className="space-y-3">
-            {profile.tipo === "barbero" && currentUserId && currentUserId !== profile.id && (
+            {profile.is_barbero && currentUserId && currentUserId !== profile.id && (
               <button
                 onClick={() => setShowReservar(true)}
                 className="flex items-center justify-center gap-3 w-full py-4 px-6 rounded-full text-black font-bold text-base transition-all active:scale-95 bg-[#1ed760] hover:bg-[#1ed760]/90"

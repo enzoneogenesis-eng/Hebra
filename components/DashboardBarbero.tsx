@@ -28,7 +28,7 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
   const [trabajos, setTrabajos]       = useState<Trabajo[]>([]);
   const [ofertas, setOfertas]         = useState<Oferta[]>([]);
   const [misPostulaciones, setMisPost] = useState<Postulacion[]>([]);
-  const [tab, setTab]                 = useState<"portfolio"|"ofertas"|"agenda"|"turnos"|"finanzas"|"resenas"|"perfil">("portfolio");
+  const [tab, setTab]                 = useState<"portfolio"|"ofertas"|"agenda"|"turnos"|"finanzas"|"resenas"|"perfil">("turnos");
   const [loading, setLoading]         = useState(true);
   const [postulando, setPostulando]   = useState<string | null>(null);
   const [mensaje, setMensaje]         = useState("");
@@ -41,7 +41,7 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
     setLoading(true);
     const [{ data: t }, { data: o }, { data: mp }, { data: p }] = await Promise.all([
       supabase.from("trabajos").select("*").eq("user_id", profile.id).order("created_at", { ascending: false }),
-      supabase.from("ofertas").select("*, profiles(id, nombre, foto_url, ubicacion, telefono)").eq("activa", true).order("created_at", { ascending: false }),
+      supabase.from("ofertas").select("*, profiles(id, nombre, foto_url, ubicacion, telefono)").eq("activa", true).neq("salon_id", profile.id).order("created_at", { ascending: false }),
       supabase.from("postulaciones").select("*, ofertas(titulo, profiles(nombre))").eq("barbero_id", profile.id),
       supabase.from("profiles").select("*").eq("id", profile.id).single(),
     ]);
@@ -107,13 +107,11 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
       {/* Tabs */}
       <div className="flex gap-1 mb-5 bg-[#111] border border-[#1e1e1e] p-1 rounded-2xl">
         {[
-          { id: "portfolio", label: `Portfolio (${trabajos.length})` },
-          { id: "ofertas",   label: `Búsquedas (${ofertas.length})` },
-          { id: "agenda",    label: `Agenda` },
           { id: "turnos",    label: `Turnos` },
-          { id: "finanzas",  label: `Finanzas` },
+          { id: "agenda",    label: `Agenda` },
           { id: "resenas",   label: `Reseñas` },
-          { id: "perfil",    label: `Perfil` },
+          { id: "portfolio", label: `Portfolio (${trabajos.length})` },
+          { id: "ofertas",   label: `Busquedas (${ofertas.length})` },
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id as any)}
             className={`flex-1 py-2.5 text-sm font-semibold rounded-xl transition-all ${

@@ -4,7 +4,7 @@ export const runtime = "nodejs";
 
 interface BioRequest {
   nombre: string;
-  tipo: "barbero" | "salon" | "cliente";
+  tipo: "barbero" | "salon" | "cliente" | "dueno";
   ubicacion: string | null;
   skills: string[] | null;
   cantidadTrabajos: number;
@@ -43,7 +43,7 @@ ${notas!.trim()}
 Tu tarea: tomar esos datos, corregir ortografia, mejorar la redaccion y transformarlos en una bio profesional. NO agregues datos que el usuario no menciono. Respeta el espiritu de lo que escribio.`
       : "";
 
-    const prompt = tipo === "salon"
+    const prompt = (tipo === "salon" || tipo === "dueno")
       ? `Escribi una bio profesional para un salon/barberia llamado "${nombre}" ubicado ${ubicText}. Servicios que ofrece: ${skillsText}. ${trabajosText}${notasBlock}
 
 Requisitos:
@@ -77,7 +77,7 @@ Devolve SOLO el texto de la bio, sin titulos, sin saludos, sin marcadores.`;
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
             temperature: 0.8,
-            maxOutputTokens: 1200,
+            maxOutputTokens: 2048,
           },
         }),
       }

@@ -26,9 +26,9 @@ export default function SearchPage() {
   const [ciudad, setCiudad]     = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
-  async function loadProfiles(tipo: string) {
+  async function loadProfiles(rolField: "is_barbero" | "is_dueno") {
     setLoading(true);
-    const { data } = await supabase.from("profiles").select("*").eq("tipo", tipo).order("created_at", { ascending: false });
+    const { data } = await supabase.from("profiles").select("*").eq(rolField, true).order("created_at", { ascending: false });
     setProfiles(data ?? []);
     setLoading(false);
   }
@@ -41,8 +41,8 @@ export default function SearchPage() {
   }
 
   useEffect(() => {
-    if (tab === "barberos") loadProfiles("barbero");
-    else if (tab === "salones") loadProfiles("salon");
+    if (tab === "barberos") loadProfiles("is_barbero");
+    else if (tab === "salones") loadProfiles("is_dueno");
     else loadOfertas();
   }, [tab]);
 

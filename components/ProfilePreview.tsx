@@ -7,7 +7,7 @@ async function getDestacados() {
   const { data } = await supabase
     .from("profiles")
     .select("id, nombre, foto_url, city, skills, bio, tipo")
-    .eq("tipo", "barbero")
+    .or("is_barbero.eq.true,is_dueno.eq.true")
     .not("foto_url", "is", null)
     .order("created_at", { ascending: false })
     .limit(3);

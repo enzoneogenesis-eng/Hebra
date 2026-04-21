@@ -1,8 +1,13 @@
-export type UserType = "barbero" | "salon" | "cliente";
+export type UserType = "barbero" | "salon" | "cliente" | "dueno";
 
 export interface Profile {
   id: string;
   tipo: UserType;
+  // Roles múltiples (nuevo modelo)
+  is_cliente: boolean;
+  is_barbero: boolean;
+  is_dueno: boolean;
+  is_admin: boolean;
   nombre: string;
   bio: string | null;
   ubicacion: string | null;
@@ -96,8 +101,104 @@ export interface Turno {
   duracion_min: number;
   estado: EstadoTurno;
   mensaje: string | null;
+    sucursal_id?: string | null;
+    servicio_id?: string | null;
   creado_en?: string;
   actualizado_en?: string;
   barbero?: Profile;
   cliente?: Profile;
+}
+// =====================================================
+// Finanzas (Fase 8 — modelo con sucursales)
+// =====================================================
+
+export interface Marca {
+  id: string;
+  owner_id: string;
+  nombre: string;
+  logo_url: string | null;
+  creada_en?: string;
+  owner?: Profile;
+}
+
+export interface Sucursal {
+  id: string;
+  marca_id: string;
+  nombre: string;
+  direccion: string | null;
+  ciudad: string | null;
+  telefono: string | null;
+  horario_texto: string | null;
+  foto_url: string | null;
+  activa: boolean;
+  creada_en?: string;
+  marca?: Marca;
+}
+
+export type ServicioOwnerType = "marca" | "barbero";
+
+export interface Servicio {
+  id: string;
+  owner_type: ServicioOwnerType;
+  owner_id: string;
+  nombre: string;
+  precio: number;
+  duracion_min: number;
+  activo: boolean;
+  creado_en?: string;
+}
+
+export interface SucursalBarbero {
+  id: string;
+  sucursal_id: string;
+  barbero_id: string;
+  porcentaje_barbero: number;
+  desde: string;
+  hasta: string | null;
+  activo: boolean;
+  creado_en?: string;
+  sucursal?: Sucursal;
+  barbero?: Profile;
+}
+
+export interface Ingreso {
+  id: string;
+  barbero_id: string;
+  sucursal_id: string | null;
+  servicio_id: string | null;
+  turno_id: string | null;
+  monto: number;
+  porcentaje_barbero: number | null;
+  monto_barbero: number | null;
+  monto_salon: number | null;
+  fecha: string;
+  cliente_nombre: string | null;
+  notas: string | null;
+  metodo_pago: MetodoPago;
+  creado_en?: string;
+  servicio?: Servicio;
+  barbero?: Profile;
+  sucursal?: Sucursal;
+}
+
+export type MetodoPago = "efectivo" | "mercadopago" | "transferencia" | "otro";
+
+export type CategoriaGasto =
+  | "alquiler"
+  | "servicios"
+  | "productos"
+  | "sueldos"
+  | "marketing"
+  | "otro";
+
+export interface Gasto {
+  id: string;
+  sucursal_id: string | null;
+  marca_id: string | null;
+  barbero_id: string | null;
+  categoria: CategoriaGasto;
+  descripcion: string | null;
+  monto: number;
+  fecha: string;
+  creado_en?: string;
 }

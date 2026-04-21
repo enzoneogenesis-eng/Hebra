@@ -108,7 +108,6 @@ export function DashboardCliente({ profile }: { profile: Profile }) {
 
   return (
     <div>
-      <EditProfileForm profile={profile} />
 
       {/* CTA buscador */}
       <Link href="/search"

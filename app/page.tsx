@@ -15,9 +15,9 @@ const PORTFOLIO_FOTOS = [
 
 async function getStats() {
   const [{ count: totalBarberos }, { count: totalTrabajos }, { data: avatares }] = await Promise.all([
-    supabase.from("profiles").select("*", { count: "exact", head: true }).in("tipo", ["barbero", "salon"]),
+    supabase.from("profiles").select("*", { count: "exact", head: true }).or("is_barbero.eq.true,is_dueno.eq.true"),
     supabase.from("trabajos").select("*",  { count: "exact", head: true }),
-    supabase.from("profiles").select("id, foto_url, nombre").in("tipo", ["barbero", "salon"]).limit(6),
+    supabase.from("profiles").select("id, foto_url, nombre").or("is_barbero.eq.true,is_dueno.eq.true").limit(6),
   ]);
   return { totalBarberos: totalBarberos ?? 0, totalTrabajos: totalTrabajos ?? 0, avatares: avatares ?? [] };
 }

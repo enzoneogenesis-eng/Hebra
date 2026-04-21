@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { DollarSign, TrendingUp, Users, Scissors, CreditCard, Banknote, Download } from 'lucide-react'
@@ -31,21 +31,21 @@ export function DashboardFinanzas() {
       if (!user) { setLoading(false); return }
       const { data: turnos } = await supabase
         .from('turnos')
-        .select('precio, metodo_pago, cliente_id, fecha, servicios(nombre)')
+        .select('cliente_id, fecha, servicios(nombre, precio)')
         .eq('barbero_id', user.id)
         .eq('estado', 'completado')
         .gte('created_at', getDesde(periodo))
       if (!turnos || turnos.length === 0) { setData(null); setLoading(false); return }
-      const ingreso_total = turnos.reduce((a,t) => a+(t.precio??0), 0)
-      const metodo_efectivo = turnos.filter(t=>t.metodo_pago==='efectivo').reduce((a,t)=>a+(t.precio??0),0)
-      const metodo_mp = turnos.filter(t=>t.metodo_pago==='mercadopago').reduce((a,t)=>a+(t.precio??0),0)
-      const metodo_transferencia = turnos.filter(t=>t.metodo_pago==='transferencia').reduce((a,t)=>a+(t.precio??0),0)
+      const ingreso_total = turnos.reduce((a,t:any) => a+((t.servicios?.precio)??0), 0)
+      const metodo_efectivo = 0
+      const metodo_mp = 0
+      const metodo_transferencia = 0
       const clientes_unicos = new Set(turnos.map(t=>t.cliente_id).filter(Boolean)).size
       const porDia: Record<string,DiaData> = {}
       turnos.forEach(t => {
         const dia = new Date(t.fecha).toLocaleDateString('es-AR',{weekday:'short'})
         if (!porDia[dia]) porDia[dia]={fecha:dia,ingreso:0,turnos:0}
-        porDia[dia].ingreso += t.precio??0
+        porDia[dia].ingreso += ((t as any).servicios?.precio)??0
         porDia[dia].turnos += 1
       })
       const porServ: Record<string,ServicioData> = {}
@@ -53,7 +53,7 @@ export function DashboardFinanzas() {
         const nombre = (t.servicios as any)?.nombre ?? 'Sin servicio'
         if (!porServ[nombre]) porServ[nombre]={nombre,cantidad:0,ingreso:0}
         porServ[nombre].cantidad++
-        porServ[nombre].ingreso += t.precio??0
+        porServ[nombre].ingreso += ((t as any).servicios?.precio)??0
       })
       const por_servicio = Object.values(porServ).sort((a,b)=>b.ingreso-a.ingreso)
       setData({
