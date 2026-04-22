@@ -7,12 +7,13 @@ import { DashboardBarbero } from "@/components/DashboardBarbero";
 import { DashboardSalon } from "@/components/DashboardSalon";
 import { DashboardCliente } from "@/components/DashboardCliente";
 import { DashboardDueno } from "@/components/DashboardDueno";
-import { Store, Calendar, User, UserCog, Receipt, Users, type LucideIcon } from "lucide-react";
+import { Store, Calendar, User, UserCog, Receipt, Users, Wallet, type LucideIcon } from "lucide-react";
 import { EditProfileForm } from "@/components/EditProfileForm";
 import { DashboardGastos } from "@/components/DashboardGastos";
 import { DashboardEquipo } from "@/components/DashboardEquipo";
+import { DashboardLiquidacion } from "@/components/DashboardLiquidacion";
 
-type TabKey = "marca" | "agenda" | "turnos" | "cliente" | "salon" | "perfil" | "gastos" | "equipo";
+type TabKey = "marca" | "agenda" | "turnos" | "cliente" | "salon" | "perfil" | "gastos" | "equipo" | "liquidacion";
 
 interface Tab {
   key: TabKey;
@@ -45,6 +46,7 @@ export default function DashboardPage() {
       tabs.push({ key: "marca", label: "Mi marca", icon: Store });
       tabs.push({ key: "gastos", label: "Gastos", icon: Receipt });
       tabs.push({ key: "equipo", label: "Equipo", icon: Users });
+      tabs.push({ key: "liquidacion", label: "Liquidacion", icon: Wallet });
     }
     if (profile.is_barbero) {
       tabs.push({ key: "agenda", label: "Turnos recibidos", icon: Calendar });
@@ -127,6 +129,7 @@ export default function DashboardPage() {
       {activeTab === "marca"   && <DashboardDueno   profile={profile} />}
       {activeTab === "gastos"  && <DashboardGastos  profile={profile} />}
       {activeTab === "equipo"  && <DashboardEquipo  profile={profile} />}
+      {activeTab === "liquidacion" && <DashboardLiquidacion profile={profile} />}
       {activeTab === "agenda"  && <DashboardBarbero profile={profile} />}
       {activeTab === "cliente" && <DashboardCliente profile={profile} />}
       {activeTab === "salon"   && <DashboardSalon   profile={profile} />}
