@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import type { Profile } from "@/types";
 import { DashboardBarbero } from "@/components/DashboardBarbero";
-import { DashboardSalon } from "@/components/DashboardSalon";
 import { DashboardCliente } from "@/components/DashboardCliente";
 import { DashboardDueno } from "@/components/DashboardDueno";
 import { Store, Calendar, User, UserCog, Receipt, Users, Briefcase, type LucideIcon } from "lucide-react";
@@ -13,7 +12,7 @@ import { DashboardGastos } from "@/components/DashboardGastos";
 import { DashboardEquipo } from "@/components/DashboardEquipo";
 import { DashboardOfertas } from "@/components/DashboardOfertas";
 
-type TabKey = "marca" | "agenda" | "turnos" | "cliente" | "salon" | "perfil" | "gastos" | "equipo" | "ofertas";
+type TabKey = "marca" | "agenda" | "turnos" | "cliente" | "perfil" | "gastos" | "equipo" | "ofertas";
 
 interface Tab {
   key: TabKey;
@@ -56,10 +55,6 @@ export default function DashboardPage() {
     }
     // Perfil siempre disponible
     tabs.push({ key: "perfil", label: "Perfil", icon: UserCog });
-    // Fallback para perfiles tipo "salon" viejos sin booleans migrados
-    if (tabs.length === 0 && profile.tipo === "salon") {
-      tabs.push({ key: "salon", label: "Salón", icon: Store });
-    }
   }
 
   // Seteo de tab activa inicial: de localStorage o la primera disponible
@@ -132,7 +127,6 @@ export default function DashboardPage() {
       {activeTab === "ofertas" && <DashboardOfertas profile={profile} />}
       {activeTab === "agenda"  && <DashboardBarbero profile={profile} />}
       {activeTab === "cliente" && <DashboardCliente profile={profile} />}
-      {activeTab === "salon"   && <DashboardSalon   profile={profile} />}
       {activeTab === "perfil"  && <EditProfileForm   profile={profile} />}
     </div>
   );

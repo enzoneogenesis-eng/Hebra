@@ -7,7 +7,6 @@ import { EditProfileForm } from "./EditProfileForm";
 import { SubirTrabajo } from "./SubirTrabajo";
 import { TrabajoCard } from "./TrabajoCard";
 import { Onboarding } from "./Onboarding";
-import { DashboardFinanzas } from "./DashboardFinanzas"
 import { ResenasDashboard } from "./ResenasDashboard"
 import { AgendaBarbero } from "./AgendaBarbero";
 import { TurnosBarbero } from "./TurnosBarbero";
@@ -28,7 +27,7 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
   const [trabajos, setTrabajos]       = useState<Trabajo[]>([]);
   const [ofertas, setOfertas]         = useState<Oferta[]>([]);
   const [misPostulaciones, setMisPost] = useState<Postulacion[]>([]);
-  const [tab, setTab]                 = useState<"portfolio"|"ofertas"|"agenda"|"turnos"|"finanzas"|"resenas"|"perfil">("turnos");
+  const [tab, setTab]                 = useState<"portfolio"|"ofertas"|"agenda"|"turnos"|"resenas"|"perfil">("turnos");
   const [loading, setLoading]         = useState(true);
   const [postulando, setPostulando]   = useState<string | null>(null);
   const [mensaje, setMensaje]         = useState("");
@@ -167,11 +166,6 @@ export function DashboardBarbero({ profile: initialProfile }: { profile: Profile
               )}
             </div>
           )}
-
-          {tab === "finanzas" && (
-            <DashboardFinanzas />
-          )}
-
           {tab === "agenda" && (
             <AgendaBarbero profile={profile} />
           )}
