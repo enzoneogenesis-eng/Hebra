@@ -1,10 +1,13 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { Camera, Save, Sparkles } from "lucide-react";
 import { SkillsPicker } from "./SkillsPicker";
 import { CiudadSelector } from "./CiudadSelector";
+import { SubirTrabajo } from "./SubirTrabajo";
+import { PortfolioGrid } from "./PortfolioGrid";
+import { ResenasDashboard } from "./ResenasDashboard";
 import { CIUDADES } from "@/lib/ciudades";
 import type { Profile } from "@/types";
 
@@ -29,6 +32,14 @@ export function EditProfileForm({ profile, onUpdate }: { profile: Profile; onUpd
   const [skills, setSkills]       = useState<string[]>(profile.skills ?? []);
   const [fotoUrl, setFotoUrl]     = useState(profile.foto_url);
   const [uploading, setUploading] = useState(false);
+  const [trabajos, setTrabajos] = useState<any[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("trabajos").select("*").eq("user_id", profile.id).order("created_at", { ascending: false });
+      setTrabajos(data ?? []);
+    })();
+  }, [profile.id]);
   const [saving, setSaving]       = useState(false);
   const [msg, setMsg]             = useState<{ type: "ok"|"err"; text: string } | null>(null);
   const [generandoBio, setGenerandoBio] = useState(false);
@@ -191,6 +202,33 @@ export function EditProfileForm({ profile, onUpdate }: { profile: Profile; onUpd
           <Save size={14} />{saving ? "Guardando…" : "Guardar cambios"}
         </button>
       </form>
+
+      {/* Portfolio */}
+      <div className="mt-10 pt-8 border-t border-[#1a1a1a]">
+        <div className="mb-4">
+          <h2 className="font-['Bebas_Neue'] text-3xl text-white tracking-wide mb-1">PORTFOLIO</h2>
+          <p className="text-xs text-[#666]">Las fotos de tu trabajo que ven los clientes en tu perfil publico.</p>
+        </div>
+        <SubirTrabajo userId={profile.id} onSubido={t => setTrabajos(prev => [t, ...prev])} />
+        {trabajos.length > 0 ? (
+          <div className="mt-4">
+            <PortfolioGrid trabajos={trabajos} />
+          </div>
+        ) : (
+          <div className="text-center py-8 bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl mt-4">
+            <p className="text-sm text-[#555]">Todavia no subiste fotos.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Resenas */}
+      <div className="mt-10 pt-8 border-t border-[#1a1a1a]">
+        <div className="mb-4">
+          <h2 className="font-['Bebas_Neue'] text-3xl text-white tracking-wide mb-1">RESENAS</h2>
+          <p className="text-xs text-[#666]">Lo que dicen tus clientes de vos.</p>
+        </div>
+        <ResenasDashboard barberoId={profile.id} barberoNombre={profile.nombre ?? "Barbero"} />
+      </div>
     </div>
   );
 }
