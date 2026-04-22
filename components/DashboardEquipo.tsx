@@ -46,7 +46,7 @@ export function DashboardEquipo({ profile }: { profile: Profile }) {
     // Cargar asignaciones activas con datos del barbero
     const { data: asigs } = await supabase
       .from("sucursales_barberos")
-      .select("*, barbero:profiles!sucursales_barberos_barbero_id_fkey(id, nombre, email, foto_url, verificado)")
+      .select("*, barbero:profiles!sucursales_barberos_barbero_id_fkey(id, nombre, foto_url, verificado)")
       .in("sucursal_id", ids)
       .eq("activo", true)
       .order("desde", { ascending: false });
