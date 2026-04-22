@@ -77,6 +77,24 @@ export function DashboardEquipo({ profile }: { profile: Profile }) {
     ? asignaciones.reduce((a, x) => a + Number(x.porcentaje_barbero), 0) / asignaciones.length
     : 0;
 
+  async function handleDesactivar(a: AsignacionConBarbero) {
+    const nombre = a.barbero?.nombre ?? "este barbero";
+    const sucNombre = sucursales.find(s => s.id === a.sucursal_id)?.nombre ?? "la sucursal";
+    if (!confirm(`Desactivar a ${nombre} de ${sucNombre}? Quedara en el historico pero dejara de aparecer en el equipo activo.`)) return;
+
+    const today = new Date().toISOString().slice(0, 10);
+    const { error: updErr } = await supabase
+      .from("sucursales_barberos")
+      .update({ activo: false, hasta: today })
+      .eq("id", a.id);
+
+    if (updErr) {
+      alert("No se pudo desactivar: " + updErr.message);
+      return;
+    }
+    loadAll();
+  }
+
   if (loading) return <div className="text-[#888] text-sm py-10 text-center">Cargando equipo...</div>;
 
   if (!marcaId) {
@@ -182,7 +200,7 @@ export function DashboardEquipo({ profile }: { profile: Profile }) {
                           <button onClick={() => setEditing(a)} className="p-2 text-[#888] hover:text-white hover:bg-[#1a1a1a] rounded-lg transition" title="Editar">
                             <Pencil size={14} />
                           </button>
-                          <button className="p-2 text-[#888] hover:text-red-400 hover:bg-[#1a1a1a] rounded-lg transition" title="Desactivar">
+                          <button onClick={() => handleDesactivar(a)} className="p-2 text-[#888] hover:text-red-400 hover:bg-[#1a1a1a] rounded-lg transition" title="Desactivar">
                             <UserX size={14} />
                           </button>
                         </div>
