@@ -1,5 +1,5 @@
-﻿import { ExplorarBarberos } from '@/components/ExplorarBarberos'
+import { ExplorarSalones } from '@/components/ExplorarSalones'
 
 export default function ExplorarPage() {
-  return <ExplorarBarberos />
+  return <ExplorarSalones />
 }
