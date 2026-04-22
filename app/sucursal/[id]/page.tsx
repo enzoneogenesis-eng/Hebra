@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { MapPin, Clock, Phone, MessageCircle, ArrowLeft, Calendar, Scissors, Users } from "lucide-react";
 import { trackWhatsAppClick } from "@/lib/trackWhatsAppClick";
+import { ReservarTurnoModal } from "@/components/ReservarTurnoModal";
 import type { Sucursal, Marca, Profile, Servicio } from "@/types";
 
 export default function SucursalPublicPage() {
@@ -15,6 +16,8 @@ export default function SucursalPublicPage() {
   const [marca, setMarca]           = useState<Marca | null>(null);
   const [barberos, setBarberos]     = useState<(Profile & { porcentaje: number })[]>([]);
   const [servicios, setServicios]   = useState<Servicio[]>([]);
+  const [showSelector, setShowSelector] = useState(false);
+  const [barberoSel, setBarberoSel]     = useState<Profile | null>(null);
 
   useEffect(() => {
     if (params?.id) loadData(params.id);
@@ -154,7 +157,7 @@ export default function SucursalPublicPage() {
 
         {/* Botones accion */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <button onClick={() => router.push(`/search?sucursal=${sucursal.id}`)}
+          <button onClick={() => setShowSelector(true)}
             className="flex items-center justify-center gap-2 bg-[#1ed760] text-black font-bold px-6 py-4 rounded-xl hover:bg-[#1ed760]/90 transition active:scale-95">
             <Calendar size={18} /> Reservar turno
           </button>
@@ -232,6 +235,45 @@ export default function SucursalPublicPage() {
           </section>
         )}
       </div>
+
+      {/* Modal selector de barbero */}
+      {showSelector && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-end md:items-center justify-center p-0 md:p-4" onClick={() => setShowSelector(false)}>
+          <div className="bg-[#0f0f0f] border border-[#2a2a2a] rounded-t-2xl md:rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="sticky top-0 bg-[#0f0f0f] border-b border-[#2a2a2a] px-5 py-4 flex items-center justify-between">
+              <div>
+                <p className="text-[#888] text-[10px] uppercase tracking-wider">Reservar turno</p>
+                <h2 className="text-white text-lg font-bold">Elegi tu barbero</h2>
+              </div>
+              <button onClick={() => setShowSelector(false)} className="text-[#888] hover:text-white"><ArrowLeft size={20} className="rotate-[225deg]" /></button>
+            </div>
+            <div className="p-5 grid grid-cols-2 gap-3">
+              {barberos.map(b => (
+                <button key={b.id}
+                  onClick={() => { setBarberoSel(b); setShowSelector(false); }}
+                  className="bg-[#141414] border border-[#2a2a2a] rounded-2xl p-3 hover:border-[#1ed760] transition active:scale-95 text-left">
+                  <div className="aspect-square rounded-xl bg-[#1a1a1a] overflow-hidden mb-2.5 flex items-center justify-center">
+                    {b.foto_url ? (
+                      <img src={b.foto_url} alt={b.nombre ?? ""} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-[#666] text-3xl font-bold">{(b.nombre ?? "?").slice(0, 1).toUpperCase()}</span>
+                    )}
+                  </div>
+                  <p className="text-white text-sm font-semibold truncate">{b.nombre}</p>
+                  {b.skills && b.skills.length > 0 && (
+                    <p className="text-[#666] text-[10px] truncate mt-0.5">{b.skills.slice(0, 2).join(" &middot; ")}</p>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de reserva real (una vez elegido el barbero) */}
+      {barberoSel && (
+        <ReservarTurnoModal barbero={barberoSel} onClose={() => setBarberoSel(null)} />
+      )}
     </div>
   );
 }
