@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { Users, Plus, Pencil, UserX, Percent } from "lucide-react";
 import type { Profile, Sucursal, SucursalBarbero } from "@/types";
 import { EquipoAgregarModal } from "./EquipoAgregarModal";
+import { EquipoEditarModal } from "./EquipoEditarModal";
 
 type AsignacionConBarbero = SucursalBarbero & {
   barbero?: Profile;
@@ -16,6 +17,7 @@ export function DashboardEquipo({ profile }: { profile: Profile }) {
   const [loading, setLoading]       = useState(true);
   const [marcaId, setMarcaId]       = useState<string | null>(null);
   const [showAdd, setShowAdd]       = useState(false);
+  const [editing, setEditing]       = useState<AsignacionConBarbero | null>(null);
 
   useEffect(() => { loadAll(); }, []);
 
@@ -177,7 +179,7 @@ export function DashboardEquipo({ profile }: { profile: Profile }) {
                           <p className="text-[#666] text-[10px]">desde {a.desde.slice(0, 10)}</p>
                         </div>
                         <div className="flex gap-1 flex-shrink-0">
-                          <button className="p-2 text-[#888] hover:text-white hover:bg-[#1a1a1a] rounded-lg transition" title="Editar">
+                          <button onClick={() => setEditing(a)} className="p-2 text-[#888] hover:text-white hover:bg-[#1a1a1a] rounded-lg transition" title="Editar">
                             <Pencil size={14} />
                           </button>
                           <button className="p-2 text-[#888] hover:text-red-400 hover:bg-[#1a1a1a] rounded-lg transition" title="Desactivar">
@@ -201,6 +203,17 @@ export function DashboardEquipo({ profile }: { profile: Profile }) {
           ownerId={profile.id}
           onClose={() => setShowAdd(false)}
           onSaved={() => { setShowAdd(false); loadAll(); }}
+        />
+      )}
+
+      {editing && editing.barbero && (
+        <EquipoEditarModal
+          asignacionId={editing.id}
+          barberoNombre={editing.barbero.nombre ?? "Barbero"}
+          sucursalNombre={sucursales.find(s => s.id === editing.sucursal_id)?.nombre ?? ""}
+          porcentajeActual={Number(editing.porcentaje_barbero)}
+          onClose={() => setEditing(null)}
+          onSaved={() => { setEditing(null); loadAll(); }}
         />
       )}
     </div>
