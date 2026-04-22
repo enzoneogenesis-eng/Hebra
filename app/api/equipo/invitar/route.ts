@@ -46,15 +46,11 @@ export async function POST(req: NextRequest) {
     const { data: inviteData, error: inviteErr } = await admin.auth.admin.inviteUserByEmail(email, { redirectTo });
 
     if (inviteErr) {
-      // Si ya existe, intentamos buscarlo
+      // Si ya existe en auth
       if (inviteErr.message.includes("already") || inviteErr.message.includes("exist")) {
-        const { data: existing } = await admin.from("profiles").select("id").eq("email", email).maybeSingle();
-        if (existing) {
-          return NextResponse.json({
-            error: "Este email ya tiene cuenta en Hebra. Usa la opcion Buscar existente.",
-            existing_id: existing.id,
-          }, { status: 409 });
-        }
+        return NextResponse.json({
+          error: "Este email ya tiene cuenta en Hebra. Usa la opcion Buscar existente para asignarlo.",
+        }, { status: 409 });
       }
       return NextResponse.json({ error: inviteErr.message }, { status: 500 });
     }
@@ -67,7 +63,6 @@ export async function POST(req: NextRequest) {
     // 3) Crear profile con el nombre y flag de barbero
     const { error: profileErr } = await admin.from("profiles").insert({
       id: newUserId,
-      email,
       nombre,
       is_barbero: true,
       is_cliente: false,

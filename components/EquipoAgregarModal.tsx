@@ -50,9 +50,8 @@ export function EquipoAgregarModal({ marcaId, sucursales, ownerId, onClose, onSa
     const t = setTimeout(async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("id, nombre, email, foto_url, is_barbero, verificado")
-        .eq("is_barbero", true)
-        .or(`nombre.ilike.%${query}%,email.ilike.%${query}%`)
+        .select("id, nombre, foto_url, verificado")
+        .ilike("nombre", `%${query}%`)
         .limit(10);
       setResultados((data ?? []) as unknown as Profile[]);
       setSearching(false);
@@ -166,11 +165,11 @@ export function EquipoAgregarModal({ marcaId, sucursales, ownerId, onClose, onSa
           {tab === "buscar" && (
             <>
               <div>
-                <label className="block text-[10px] font-bold text-[#888] uppercase tracking-widest mb-1.5">Buscar por nombre o email</label>
+                <label className="block text-[10px] font-bold text-[#888] uppercase tracking-widest mb-1.5">Buscar por nombre</label>
                 <div className="relative">
                   <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#666]" />
                   <input type="text" autoFocus value={query} onChange={e => { setQuery(e.target.value); setSelected(null); }}
-                    placeholder="Ej: Juan, juan@gmail.com"
+                    placeholder="Ej: Juan Perez"
                     className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl pl-10 pr-4 py-3 text-white focus:outline-none focus:border-[#1ed760]"
                   />
                 </div>
@@ -190,7 +189,7 @@ export function EquipoAgregarModal({ marcaId, sucursales, ownerId, onClose, onSa
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-white text-sm font-medium truncate">{b.nombre}</p>
-                        <p className="text-[#666] text-xs truncate">{(b as any).email}</p>
+                        
                       </div>
                       {selected?.id === b.id && <Check size={16} className="text-[#1ed760] flex-shrink-0" />}
                     </button>

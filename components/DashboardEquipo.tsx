@@ -170,7 +170,7 @@ export function DashboardEquipo({ profile }: { profile: Profile }) {
                             {b.nombre}
                             {esSelf && <span className="ml-2 text-[10px] text-[#1ed760] font-bold">(vos)</span>}
                           </p>
-                          <p className="text-[#666] text-xs truncate">{(b as any).email}</p>
+                          
                         </div>
                         <div className="text-right flex-shrink-0">
                           <p className="text-white text-sm font-bold">{Number(a.porcentaje_barbero).toFixed(0)}%</p>
