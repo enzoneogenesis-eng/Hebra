@@ -2,7 +2,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from "recharts";
-import { DollarSign, Scissors, TrendingUp, CreditCard, Calendar, Store, Banknote, Smartphone, ArrowLeftRight, HelpCircle, MessageCircle } from "lucide-react";
+import { DollarSign, Scissors, TrendingUp, CreditCard, Calendar, Store, Banknote, Smartphone, ArrowLeftRight, HelpCircle, MessageCircle, Users } from "lucide-react";
 import type { Profile, Marca, Sucursal, Ingreso, Gasto } from "@/types";
 
 type Periodo = "hoy" | "semana" | "mes";
@@ -101,7 +101,11 @@ export function DashboardDueno({ profile }: { profile: Profile }) {
   const facturacion    = ingresosPeriodo.reduce((a, i) => a + Number(i.monto), 0);
   const cortes         = ingresosPeriodo.length;
   const totalGastos    = gastosPeriodo.reduce((a, g) => a + Number(g.monto), 0);
-  const ganancia       = facturacion - totalGastos;
+  // Liquidacion al equipo: monto_barbero SOLO de ingresos donde el barbero NO sea el owner
+  const totalLiquidacion = ingresosPeriodo
+    .filter(i => i.barbero_id !== profile.id)
+    .reduce((a, i) => a + Number((i as any).monto_barbero ?? 0), 0);
+  const gananciaNeta   = facturacion - totalGastos - totalLiquidacion;
   const ticketPromedio = cortes > 0 ? facturacion / cortes : 0;
   const contactosPeriodo = useMemo(
     () => contactosWA.filter(c => new Date(c.created_at) >= desde),
@@ -177,9 +181,10 @@ export function DashboardDueno({ profile }: { profile: Profile }) {
 
       {/* KPIs grandes */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard icon={<DollarSign size={18} />}   label="Facturación" valor={formatearARS(facturacion)} sub={periodoLabel} />
+        <KpiCard icon={<DollarSign size={18} />}   label="Facturacion bruta" valor={formatearARS(facturacion)} sub={periodoLabel} />
         <KpiCard icon={<Scissors size={18} />}     label="Cortes"      valor={cortes.toString()}          sub={periodoLabel} />
-        <KpiCard icon={<TrendingUp size={18} />}   label="Ganancia"    valor={formatearARS(ganancia)}    sub={`menos ${formatearARS(totalGastos)} gastos`} />
+        <KpiCard icon={<TrendingUp size={18} />}   label="Ganancia neta"    valor={formatearARS(gananciaNeta)}    sub={`ya descontado gastos y equipo`} />
+        <KpiCard icon={<Users size={18} />}   label="Comisiones equipo"    valor={formatearARS(totalLiquidacion)}    sub={`para los barberos`} />
         <KpiCard icon={<CreditCard size={18} />}   label="Ticket prom."valor={formatearARS(ticketPromedio)} sub="por corte" />
         <KpiCard icon={<MessageCircle size={18} />} label="Contactos WhatsApp" valor={totalContactos.toString()} sub={`via Hebra, ${periodoLabel}`} />
       </div>
