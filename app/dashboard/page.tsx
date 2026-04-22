@@ -7,10 +7,11 @@ import { DashboardBarbero } from "@/components/DashboardBarbero";
 import { DashboardSalon } from "@/components/DashboardSalon";
 import { DashboardCliente } from "@/components/DashboardCliente";
 import { DashboardDueno } from "@/components/DashboardDueno";
-import { Store, Calendar, User, UserCog, type LucideIcon } from "lucide-react";
+import { Store, Calendar, User, UserCog, Receipt, type LucideIcon } from "lucide-react";
 import { EditProfileForm } from "@/components/EditProfileForm";
+import { DashboardGastos } from "@/components/DashboardGastos";
 
-type TabKey = "marca" | "agenda" | "turnos" | "cliente" | "salon" | "perfil";
+type TabKey = "marca" | "agenda" | "turnos" | "cliente" | "salon" | "perfil" | "gastos";
 
 interface Tab {
   key: TabKey;
@@ -41,6 +42,7 @@ export default function DashboardPage() {
   if (profile) {
     if (profile.is_dueno) {
       tabs.push({ key: "marca", label: "Mi marca", icon: Store });
+      tabs.push({ key: "gastos", label: "Gastos", icon: Receipt });
     }
     if (profile.is_barbero) {
       tabs.push({ key: "agenda", label: "Turnos recibidos", icon: Calendar });
@@ -121,6 +123,7 @@ export default function DashboardPage() {
 
       {/* Contenido de la tab activa */}
       {activeTab === "marca"   && <DashboardDueno   profile={profile} />}
+      {activeTab === "gastos"  && <DashboardGastos  profile={profile} />}
       {activeTab === "agenda"  && <DashboardBarbero profile={profile} />}
       {activeTab === "cliente" && <DashboardCliente profile={profile} />}
       {activeTab === "salon"   && <DashboardSalon   profile={profile} />}
