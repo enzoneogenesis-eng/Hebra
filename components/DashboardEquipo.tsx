@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
-import { Users, Plus, Pencil, UserX, Percent } from "lucide-react";
+import { Users, Plus, Pencil, UserX, Percent, Wallet } from "lucide-react";
 import type { Profile, Sucursal, SucursalBarbero } from "@/types";
 import { EquipoAgregarModal } from "./EquipoAgregarModal";
 import { EquipoEditarModal } from "./EquipoEditarModal";
+import { DashboardLiquidacion } from "./DashboardLiquidacion";
 
 type AsignacionConBarbero = SucursalBarbero & {
   barbero?: Profile;
@@ -18,6 +19,7 @@ export function DashboardEquipo({ profile }: { profile: Profile }) {
   const [marcaId, setMarcaId]       = useState<string | null>(null);
   const [showAdd, setShowAdd]       = useState(false);
   const [editing, setEditing]       = useState<AsignacionConBarbero | null>(null);
+  const [subTab, setSubTab]         = useState<"barberos" | "liquidacion">("barberos");
 
   useEffect(() => { loadAll(); }, []);
 
@@ -120,6 +122,26 @@ export function DashboardEquipo({ profile }: { profile: Profile }) {
         </button>
       </div>
 
+      {/* Sub-tabs */}
+      <div className="flex gap-1 bg-[#111] border border-[#1e1e1e] p-1 rounded-2xl">
+        <button onClick={() => setSubTab("barberos")}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-xl transition ${
+            subTab === "barberos" ? "bg-[#0a0a0a] text-white" : "text-[#666]"
+          }`}>
+          <Users size={14} /> Mis barberos
+        </button>
+        <button onClick={() => setSubTab("liquidacion")}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-xl transition ${
+            subTab === "liquidacion" ? "bg-[#0a0a0a] text-white" : "text-[#666]"
+          }`}>
+          <Wallet size={14} /> Liquidacion
+        </button>
+      </div>
+
+      {subTab === "liquidacion" && <DashboardLiquidacion profile={profile} />}
+
+      {subTab === "barberos" && (
+      <>
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="bg-[#141414] border border-[#2a2a2a] rounded-xl p-4">
@@ -212,6 +234,9 @@ export function DashboardEquipo({ profile }: { profile: Profile }) {
             </div>
           ))}
         </div>
+      )}
+
+      </>
       )}
 
       {showAdd && marcaId && (
