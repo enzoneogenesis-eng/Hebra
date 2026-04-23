@@ -10,8 +10,8 @@ import { Resenas } from "@/components/Resenas";
 import { BadgeVerificado } from "@/components/BadgeVerificado";
 import { formatDate } from "@/lib/utils";
 import { trackWhatsAppClick } from "@/lib/trackWhatsAppClick";
-import { MapPin, ArrowLeft, Instagram } from "lucide-react";
-import type { Profile, Trabajo, Oferta } from "@/types";
+import { MapPin, ArrowLeft, Instagram, Store } from "lucide-react";
+import type { Profile, Trabajo, Oferta, Sucursal } from "@/types";
 import { ReservarTurnoModal } from "@/components/ReservarTurnoModal";
 import { Calendar } from "lucide-react";
 
@@ -32,6 +32,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
   const [loading, setLoading]   = useState(true);
   const [showReservar, setShowReservar] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [sucursales, setSucursales] = useState<Sucursal[]>([]);
 
   useEffect(() => {
     async function load() {
@@ -43,6 +44,19 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
       setProfile(p);
       setTrabajos(t ?? []);
       setOfertas(o ?? []);
+
+      if (p?.is_dueno) {
+        const { data: marca } = await supabase.from("marcas").select("id").eq("owner_id", params.id).maybeSingle();
+        if (marca) {
+          const { data: sucs } = await supabase
+            .from("sucursales")
+            .select("*")
+            .eq("marca_id", (marca as any).id)
+            .eq("activa", true)
+            .order("nombre", { ascending: true });
+          setSucursales((sucs ?? []) as Sucursal[]);
+        }
+      }
       setLoading(false);
 
       // Registrar visita
@@ -186,6 +200,38 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
           </div>
         </div>
       </div>
+
+      {/* Nuestras sucursales */}
+      {sucursales.length > 0 && (
+        <section className="mb-10">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-['Bebas_Neue'] text-3xl text-white tracking-wide">NUESTRAS SUCURSALES</h2>
+            <span className="text-xs text-[#333]">{sucursales.length} {sucursales.length === 1 ? "local" : "locales"}</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {sucursales.map(s => (
+              <Link key={s.id} href={"/sucursal/" + s.id} className="group bg-[#111] border border-[#1e1e1e] rounded-3xl p-4 hover:border-[#22c55e]/40 active:scale-[0.98] transition-all flex items-center gap-3">
+                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-[#0a0a0a] border border-[#1e1e1e] relative flex-shrink-0">
+                  {s.foto_url
+                    ? <Image src={s.foto_url} alt={s.nombre} fill className="object-cover" />
+                    : <div className="w-full h-full flex items-center justify-center text-[#333]"><Store size={22} /></div>
+                  }
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-white font-semibold text-sm truncate group-hover:text-[#22c55e] transition-colors">{s.nombre}</h3>
+                  {(s.direccion || s.ciudad) && (
+                    <p className="text-[11px] text-[#666] flex items-center gap-1 truncate mt-0.5">
+                      <MapPin size={11} className="flex-shrink-0" />
+                      <span className="truncate">{[s.direccion, s.ciudad].filter(Boolean).join(", ")}</span>
+                    </p>
+                  )}
+                  {s.horario_texto && <p className="text-[10px] text-[#444] mt-0.5 truncate">{s.horario_texto}</p>}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Portfolio */}
       {trabajos.length > 0 && (

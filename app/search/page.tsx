@@ -36,58 +36,40 @@ export default function SearchPage() {
       return;
     }
 
-    // Tab Salones: buscar MARCAS con su owner y sucursales activas
-    const { data: marcas } = await supabase
-      .from("marcas")
-      .select("id, nombre, logo_url, owner:profiles!marcas_owner_id_fkey(id, nombre, ubicacion, telefono, instagram, tipo)")
-      .order("creada_en", { ascending: false });
+    // Tab Salones: cada SUCURSAL activa es una card independiente
+    const { data: sucursales } = await supabase
+      .from("sucursales")
+      .select("id, nombre, direccion, ciudad, telefono, foto_url, marca:marcas(id, nombre, logo_url, owner:profiles!marcas_owner_id_fkey(telefono, instagram, ubicacion))")
+      .eq("activa", true)
+      .order("nombre", { ascending: true });
 
-    if (!marcas || marcas.length === 0) {
+    if (!sucursales || sucursales.length === 0) {
       setProfiles([]);
       setLoading(false);
       return;
     }
 
-    const marcaIds = marcas.map((m: any) => m.id);
-    const { data: sucursales } = await supabase
-      .from("sucursales")
-      .select("id, marca_id, nombre, activa")
-      .in("marca_id", marcaIds)
-      .eq("activa", true);
-
-    // Agrupar sucursales por marca y ordenar alfabeticamente para elegir principal
-    const sucByMarca = new Map<string, { id: string; nombre: string }[]>();
-    (sucursales ?? []).forEach((s: any) => {
-      const arr = sucByMarca.get(s.marca_id) ?? [];
-      arr.push({ id: s.id, nombre: s.nombre });
-      sucByMarca.set(s.marca_id, arr);
-    });
-    sucByMarca.forEach(arr => arr.sort((a, b) => a.nombre.localeCompare(b.nombre, "es")));
-
-    // Mapear cada marca a un pseudo-Profile compatible con ProfileCard
-    const rows: any[] = marcas.map((m: any) => {
-      const owner = m.owner ?? {};
-      const sucs = sucByMarca.get(m.id) ?? [];
-      const principal = sucs[0];
-      const href = principal ? "/sucursal/" + principal.id : "/profile/" + owner.id;
+    const rows: any[] = sucursales.map((s: any) => {
+      const marca = s.marca ?? {};
+      const owner = marca.owner ?? {};
+      const ubicacionParts = [s.direccion, s.ciudad].filter(Boolean).join(", ");
       return {
-        id: m.id,
+        id: s.id,
         tipo: "salon",
-        nombre: m.nombre,
-        foto_url: m.logo_url ?? null,
-        ubicacion: owner.ubicacion ?? null,
-        telefono: owner.telefono ?? null,
+        nombre: s.nombre,
+        foto_url: s.foto_url ?? marca.logo_url ?? null,
+        ubicacion: ubicacionParts || owner.ubicacion || null,
+        telefono: s.telefono ?? owner.telefono ?? null,
         instagram: owner.instagram ?? null,
         skills: null,
         bio: null,
         is_cliente: false,
         is_barbero: false,
-        is_dueno: true,
+        is_dueno: false,
         is_admin: false,
         verificado: false,
         onboarding_done: true,
-        _searchHref: href,
-        _sucursalCount: sucs.length,
+        _searchHref: "/sucursal/" + s.id,
       };
     });
 
