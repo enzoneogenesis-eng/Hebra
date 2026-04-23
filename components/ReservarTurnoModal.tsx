@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { X, Calendar, Clock, MessageCircle, Check, Store, Scissors, DollarSign } from "lucide-react";
 import type { Profile, Disponibilidad, Sucursal, Servicio } from "@/types";
-import { generarSlots, filtrarOcupados, proximasFechas, formatearFechaCorta, formatearFechaLarga, fechaToISO } from "@/lib/turnos";
+import { generarSlots, filtrarOcupados, filtrarPasados, proximasFechas, formatearFechaCorta, formatearFechaLarga, fechaToISO } from "@/lib/turnos";
 
 function formatearARS(n: number): string {
   return "$ " + Math.round(n).toLocaleString("es-AR");
@@ -95,7 +95,7 @@ export function ReservarTurnoModal({ barbero, onClose }: { barbero: Profile; onC
       const ocupados = (turnosDia ?? [])
         .filter((t: any) => t.estado === "pendiente" || t.estado === "confirmado")
         .map((t: any) => t.hora.slice(0, 5));
-      setSlotsDia(filtrarOcupados(todos, ocupados));
+      setSlotsDia(filtrarPasados(filtrarOcupados(todos, ocupados), fechaSel));
       setSlotSel(null);
     }
     loadSlots();
@@ -106,7 +106,7 @@ export function ReservarTurnoModal({ barbero, onClose }: { barbero: Profile; onC
     setEnviando(true);
     setError(null);
 
-    const { error: insertError } = await supabase.from("turnos").insert({
+    const { data: insertData, error: insertError } = await supabase.from("turnos").insert({
       barbero_id:  barbero.id,
       cliente_id:  userId,
       sucursal_id: sucursalSel,
@@ -116,13 +116,21 @@ export function ReservarTurnoModal({ barbero, onClose }: { barbero: Profile; onC
       duracion_min: servicioSel.duracion_min,
       estado:      "pendiente",
       mensaje:     mensaje.trim() || null,
-    });
+    }).select("id").single();
 
     setEnviando(false);
     if (insertError) {
       setError("No se pudo reservar: " + insertError.message);
     } else {
       setExito(true);
+      // Notificar al barbero por email (fire-and-forget, no bloquea el flujo)
+      if (insertData?.id) {
+        fetch("/api/notificar-turno-pendiente", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ turno_id: insertData.id }),
+        }).catch(err => console.error("[notif] Error enviando email:", err));
+      }
     }
   }
 

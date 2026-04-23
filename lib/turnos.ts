@@ -30,6 +30,26 @@ export function filtrarOcupados(slots: string[], turnos: Turno[]): string[] {
   return slots.filter(s => !ocupados.has(s));
 }
 
+// Filtra slots que ya pasaron o que estan a menos de minMinutosAntes minutos en el futuro.
+// Solo aplica cuando la fecha es HOY; para fechas futuras devuelve todos los slots.
+export function filtrarPasados(slots: string[], fecha: Date, minMinutosAntes: number = 60): string[] {
+  const hoy = new Date();
+  const esMismoDia =
+    fecha.getFullYear() === hoy.getFullYear() &&
+    fecha.getMonth() === hoy.getMonth() &&
+    fecha.getDate() === hoy.getDate();
+  if (!esMismoDia) return slots;
+
+  const ahoraMin = hoy.getHours() * 60 + hoy.getMinutes();
+  const limite = ahoraMin + minMinutosAntes;
+
+  return slots.filter(s => {
+    const [h, m] = s.split(":").map(Number);
+    const slotMin = h * 60 + m;
+    return slotMin >= limite;
+  });
+}
+
 export function proximasFechas(disp: Disponibilidad, fromDate?: Date, diasAMostrar = 14): Date[] {
   const start = fromDate ?? new Date();
   start.setHours(0, 0, 0, 0);
