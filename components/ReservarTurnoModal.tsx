@@ -120,10 +120,33 @@ export function ReservarTurnoModal({ barbero, onClose }: { barbero: Profile; onC
 
     setEnviando(false);
     if (insertError) {
-      setError("No se pudo reservar: " + insertError.message);
+      const msg = insertError.message || "";
+      const esDuplicado =
+        msg.includes("idx_turnos_slot_unico") ||
+        msg.includes("duplicate key") ||
+        msg.toLowerCase().includes("duplicate");
+
+      if (esDuplicado) {
+        setError("Ese horario acaba de ser reservado. Por favor elegi otro.");
+        if (fechaSel && disp) {
+          const fechaISO = fechaToISO(fechaSel);
+          const { data: turnosDia } = await supabase
+            .from("turnos")
+            .select("hora, estado")
+            .eq("barbero_id", barbero.id)
+            .eq("fecha", fechaISO);
+          const duracionSlot = servicioSel?.duracion_min ?? disp.duracion_min;
+          const dispAjustada = { ...disp, duracion_min: duracionSlot };
+          const todos = generarSlots(dispAjustada, fechaSel);
+          const ocupados = (turnosDia ?? []) as any[];
+          setSlotsDia(filtrarPasados(filtrarOcupados(todos, ocupados), fechaSel));
+          setSlotSel(null);
+        }
+      } else {
+        setError("No se pudo reservar: " + msg);
+      }
     } else {
       setExito(true);
-      // Notificar al barbero por email (fire-and-forget, no bloquea el flujo)
       if (insertData?.id) {
         fetch("/api/notificar-turno-pendiente", {
           method: "POST",
