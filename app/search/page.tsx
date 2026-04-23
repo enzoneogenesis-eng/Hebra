@@ -28,8 +28,70 @@ export default function SearchPage() {
 
   async function loadProfiles(rolField: "is_barbero" | "is_dueno") {
     setLoading(true);
-    const { data } = await supabase.from("profiles").select("*").eq(rolField, true).order("created_at", { ascending: false });
-    setProfiles(data ?? []);
+
+    if (rolField === "is_barbero") {
+      const { data } = await supabase.from("profiles").select("*").eq("is_barbero", true).order("created_at", { ascending: false });
+      setProfiles((data ?? []) as Profile[]);
+      setLoading(false);
+      return;
+    }
+
+    // Tab Salones: buscar MARCAS con su owner y sucursales activas
+    const { data: marcas } = await supabase
+      .from("marcas")
+      .select("id, nombre, logo_url, owner:profiles!marcas_owner_id_fkey(id, nombre, ubicacion, telefono, instagram, tipo)")
+      .order("creada_en", { ascending: false });
+
+    if (!marcas || marcas.length === 0) {
+      setProfiles([]);
+      setLoading(false);
+      return;
+    }
+
+    const marcaIds = marcas.map((m: any) => m.id);
+    const { data: sucursales } = await supabase
+      .from("sucursales")
+      .select("id, marca_id, nombre, activa")
+      .in("marca_id", marcaIds)
+      .eq("activa", true);
+
+    // Agrupar sucursales por marca y ordenar alfabeticamente para elegir principal
+    const sucByMarca = new Map<string, { id: string; nombre: string }[]>();
+    (sucursales ?? []).forEach((s: any) => {
+      const arr = sucByMarca.get(s.marca_id) ?? [];
+      arr.push({ id: s.id, nombre: s.nombre });
+      sucByMarca.set(s.marca_id, arr);
+    });
+    sucByMarca.forEach(arr => arr.sort((a, b) => a.nombre.localeCompare(b.nombre, "es")));
+
+    // Mapear cada marca a un pseudo-Profile compatible con ProfileCard
+    const rows: any[] = marcas.map((m: any) => {
+      const owner = m.owner ?? {};
+      const sucs = sucByMarca.get(m.id) ?? [];
+      const principal = sucs[0];
+      const href = principal ? "/sucursal/" + principal.id : "/profile/" + owner.id;
+      return {
+        id: m.id,
+        tipo: "salon",
+        nombre: m.nombre,
+        foto_url: m.logo_url ?? null,
+        ubicacion: owner.ubicacion ?? null,
+        telefono: owner.telefono ?? null,
+        instagram: owner.instagram ?? null,
+        skills: null,
+        bio: null,
+        is_cliente: false,
+        is_barbero: false,
+        is_dueno: true,
+        is_admin: false,
+        verificado: false,
+        onboarding_done: true,
+        _searchHref: href,
+        _sucursalCount: sucs.length,
+      };
+    });
+
+    setProfiles(rows as Profile[]);
     setLoading(false);
   }
 
@@ -139,7 +201,7 @@ export default function SearchPage() {
           <>
             <p className="text-xs text-[#333] mb-3">{filtered.length} resultado{filtered.length !== 1 ? "s" : ""}</p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {filtered.map(p => <ProfileCard key={p.id} profile={p} />)}
+              {filtered.map(p => <ProfileCard key={p.id} profile={p} href={(p as any)._searchHref} />)}
             </div>
           </>
         ) : (

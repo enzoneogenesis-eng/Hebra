@@ -10,9 +10,9 @@ function getBgColor(nombre: string): string {
   return colors[nombre.charCodeAt(0) % colors.length];
 }
 
-export function ProfileCard({ profile }: { profile: Profile }) {
+export function ProfileCard({ profile, href }: { profile: Profile; href?: string }) {
   return (
-    <Link href={`/profile/${profile.id}`}
+    <Link href={href ?? `/profile/${profile.id}`}
       className="group bg-[#111] border border-[#1e1e1e] rounded-2xl overflow-hidden active:scale-95 transition-all duration-200 block hover:border-[#333]"
       style={{ WebkitTapHighlightColor: "transparent" }}>
 

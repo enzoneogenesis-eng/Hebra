@@ -11,8 +11,8 @@ import { EditProfileForm } from "@/components/EditProfileForm";
 import { DashboardGastos } from "@/components/DashboardGastos";
 import { DashboardEquipo } from "@/components/DashboardEquipo";
 import { DashboardOfertas } from "@/components/DashboardOfertas";
-
-type TabKey = "marca" | "agenda" | "turnos" | "cliente" | "perfil" | "gastos" | "equipo" | "ofertas";
+import { SucursalesManager } from "@/components/SucursalesManager";
+type TabKey = "marca" | "sucursales" | "agenda" | "turnos" | "cliente" | "perfil" | "gastos" | "equipo" | "ofertas";
 
 interface Tab {
   key: TabKey;
@@ -43,6 +43,7 @@ export default function DashboardPage() {
   if (profile) {
     if (profile.is_dueno) {
       tabs.push({ key: "marca", label: "Mi marca", icon: Store });
+      tabs.push({ key: "sucursales", label: "Sucursales", icon: Store });
       tabs.push({ key: "gastos", label: "Gastos", icon: Receipt });
       tabs.push({ key: "equipo", label: "Equipo", icon: Users });
       tabs.push({ key: "ofertas", label: "Ofertas", icon: Briefcase });
@@ -122,6 +123,7 @@ export default function DashboardPage() {
 
       {/* Contenido de la tab activa */}
       {activeTab === "marca"   && <DashboardDueno   profile={profile} />}
+      {activeTab === "sucursales" && <SucursalesManager profile={profile} />}
       {activeTab === "gastos"  && <DashboardGastos  profile={profile} />}
       {activeTab === "equipo"  && <DashboardEquipo  profile={profile} />}
       {activeTab === "ofertas" && <DashboardOfertas profile={profile} />}
