@@ -148,11 +148,14 @@ export function ReservarTurnoModal({ barbero, onClose }: { barbero: Profile; onC
     } else {
       setExito(true);
       if (insertData?.id) {
-        fetch("/api/notificar-turno-pendiente", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ turno_id: insertData.id }),
-        }).catch(err => console.error("[notif] Error enviando email:", err));
+        const notif = (tipo: string) =>
+          fetch("/api/notificar-turno", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ turno_id: insertData.id, tipo }),
+          }).catch(err => console.error("[notif] Error enviando email:", tipo, err));
+        notif("pendiente_barbero");
+        notif("reserva_cliente");
       }
     }
   }

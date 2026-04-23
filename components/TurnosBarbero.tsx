@@ -39,7 +39,20 @@ export function TurnosBarbero({ profile }: { profile: Profile }) {
       .update({ estado: nuevoEstado, actualizado_en: new Date().toISOString() })
       .eq("id", id);
     setAccionando(null);
-    if (!error) load();
+    if (!error) {
+      // Notificar al cliente segun el nuevo estado (fire-and-forget)
+      let tipoNotif: string | null = null;
+      if (nuevoEstado === "confirmado") tipoNotif = "confirmado";
+      else if (nuevoEstado === "rechazado") tipoNotif = "rechazado";
+      if (tipoNotif) {
+        fetch("/api/notificar-turno", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ turno_id: id, tipo: tipoNotif }),
+        }).catch(err => console.error("[notif] Error enviando email:", tipoNotif, err));
+      }
+      load();
+    }
   }
 
   // Filtrar
