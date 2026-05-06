@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
-import { Camera, Save, Sparkles } from "lucide-react";
+import { Camera, Save, Sparkles, MapPin } from "lucide-react";
 import { SkillsPicker } from "./SkillsPicker";
 import { CiudadSelector } from "./CiudadSelector";
 import { SubirTrabajo } from "./SubirTrabajo";
@@ -31,6 +31,8 @@ export function EditProfileForm({ profile, onUpdate }: { profile: Profile; onUpd
   const [ciudad, setCiudad]       = useState(findCiudadValue(profile.ubicacion));
   const [skills, setSkills]       = useState<string[]>(profile.skills ?? []);
   const [fotoUrl, setFotoUrl]     = useState(profile.foto_url);
+  const [latitud, setLatitud]     = useState<number | null>(profile.latitud ?? null);
+  const [longitud, setLongitud]   = useState<number | null>(profile.longitud ?? null);
   const [uploading, setUploading] = useState(false);
   const [trabajos, setTrabajos] = useState<any[]>([]);
 
@@ -41,6 +43,7 @@ export function EditProfileForm({ profile, onUpdate }: { profile: Profile; onUpd
     })();
   }, [profile.id]);
   const [saving, setSaving]       = useState(false);
+  const [geoStatus, setGeoStatus] = useState<"idle"|"loading"|"ok"|"error">("idle");
   const [msg, setMsg]             = useState<{ type: "ok"|"err"; text: string } | null>(null);
   const [generandoBio, setGenerandoBio] = useState(false);
 
@@ -110,6 +113,8 @@ export function EditProfileForm({ profile, onUpdate }: { profile: Profile; onUpd
       telefono:  form.telefono  || null,
       instagram: form.instagram || null,
       skills:    skills.length > 0 ? skills : null,
+      latitud,
+      longitud,
     }).eq("id", profile.id);
     setMsg(error
       ? { type: "err", text: "Error al guardar." }
@@ -117,6 +122,29 @@ export function EditProfileForm({ profile, onUpdate }: { profile: Profile; onUpd
     );
     if (!error) onUpdate?.();
     setSaving(false);
+  }
+
+  function usarMiUbicacion() {
+    if (!navigator.geolocation) {
+      setGeoStatus("error");
+      setMsg({ type: "err", text: "Tu navegador no soporta geolocalizacion." });
+      return;
+    }
+    setGeoStatus("loading");
+    setMsg(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLatitud(pos.coords.latitude);
+        setLongitud(pos.coords.longitude);
+        setGeoStatus("ok");
+        setMsg({ type: "ok", text: "Ubicacion guardada. Acordate de tocar Guardar." });
+      },
+      (e) => {
+        setGeoStatus("error");
+        setMsg({ type: "err", text: "No pudimos obtener tu ubicacion: " + (e.message || "permiso denegado") });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
   }
 
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -170,6 +198,23 @@ export function EditProfileForm({ profile, onUpdate }: { profile: Profile; onUpd
         <div>
           <label className="block text-[10px] font-bold text-[#bbb] uppercase tracking-widest mb-1.5">Ciudad</label>
           <CiudadSelector value={ciudad} onChange={setCiudad} />
+          <button
+            type="button"
+            onClick={usarMiUbicacion}
+            disabled={geoStatus === "loading"}
+            className="mt-2 w-full text-xs flex items-center justify-center gap-2 bg-[#1a1a1a] hover:bg-[#222] border border-[#2a2a2a] text-white py-2 rounded-xl transition disabled:opacity-50"
+            style={{ WebkitTapHighlightColor: "transparent" }}
+          >
+            <MapPin size={12} />
+            {geoStatus === "loading" ? "Obteniendo ubicacion..." :
+             (latitud !== null && longitud !== null) ? "\u2713 Ubicacion guardada" :
+             "Usar mi ubicacion actual"}
+          </button>
+          {latitud !== null && longitud !== null && (
+            <p className="text-[10px] text-[#22c55e] mt-1">
+              Lat: {latitud.toFixed(5)} \u00b7 Lng: {longitud.toFixed(5)}
+            </p>
+          )}
         </div>
 
         <div>
