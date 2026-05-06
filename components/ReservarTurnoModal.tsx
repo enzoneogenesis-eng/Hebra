@@ -29,6 +29,10 @@ export function ReservarTurnoModal({ barbero, onClose }: { barbero: Profile; onC
   const [enviando, setEnviando]       = useState(false);
   const [exito, setExito]             = useState(false);
   const [error, setError]             = useState<string | null>(null);
+  // Datos guest (solo se completan si !userId)
+  const [guestNombre, setGuestNombre]     = useState("");
+  const [guestEmail, setGuestEmail]       = useState("");
+  const [guestWhatsapp, setGuestWhatsapp] = useState("");
 
   // Cargar sesion + disponibilidad + sucursales + servicios
   useEffect(() => {
@@ -101,22 +105,74 @@ export function ReservarTurnoModal({ barbero, onClose }: { barbero: Profile; onC
     loadSlots();
   }, [fechaSel, disp, servicioSel, barbero.id]);
 
+  function guestValido(): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const whatsappDigits = guestWhatsapp.replace(/\D/g, "");
+    return (
+      guestNombre.trim().length >= 2 &&
+      emailRegex.test(guestEmail.trim()) &&
+      whatsappDigits.length >= 8
+    );
+  }
+
   async function confirmar() {
-    if (!userId || !fechaSel || !slotSel || !servicioSel) return;
+    if (!fechaSel || !slotSel || !servicioSel) return;
+    if (!userId && !guestValido()) {
+      setError("Completa nombre, email y WhatsApp para reservar.");
+      return;
+    }
     setEnviando(true);
     setError(null);
 
-    const { data: insertData, error: insertError } = await supabase.from("turnos").insert({
-      barbero_id:  barbero.id,
-      cliente_id:  userId,
-      sucursal_id: sucursalSel,
-      servicio_id: servicioSel.id,
-      fecha:       fechaToISO(fechaSel),
-      hora:        slotSel,
-      duracion_min: servicioSel.duracion_min,
-      estado:      "pendiente",
-      mensaje:     mensaje.trim() || null,
-    }).select("id").single();
+    let insertData: { id: string } | null = null;
+    let insertError: { message: string } | null = null;
+
+    if (userId) {
+      // Flujo logueado: insert directo a Supabase
+      const res = await supabase.from("turnos").insert({
+        barbero_id:  barbero.id,
+        cliente_id:  userId,
+        sucursal_id: sucursalSel,
+        servicio_id: servicioSel.id,
+        fecha:       fechaToISO(fechaSel),
+        hora:        slotSel,
+        duracion_min: servicioSel.duracion_min,
+        estado:      "pendiente",
+        mensaje:     mensaje.trim() || null,
+      }).select("id").single();
+      insertData = res.data;
+      insertError = res.error;
+    } else {
+      // Flujo guest: POST al endpoint publico (crea auth user + profile + turno + dispara mails)
+      const res = await fetch("/api/reservar-publico", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          barbero_id:  barbero.id,
+          sucursal_id: sucursalSel,
+          servicio_id: servicioSel.id,
+          fecha:       fechaToISO(fechaSel),
+          hora:        slotSel,
+          mensaje:     mensaje.trim() || null,
+          guest: {
+            nombre:   guestNombre.trim(),
+            email:    guestEmail.trim().toLowerCase(),
+            whatsapp: guestWhatsapp.trim(),
+          },
+        }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        insertData = { id: json.turno_id };
+      } else {
+        // Mapear 409 slot duplicado al string que la rama esDuplicado entiende
+        if (res.status === 409 && json.error?.includes("acaba de ser reservado")) {
+          insertError = { message: "duplicate key" };
+        } else {
+          insertError = { message: json.error || "Error desconocido" };
+        }
+      }
+    }
 
     setEnviando(false);
     if (insertError) {
@@ -147,12 +203,13 @@ export function ReservarTurnoModal({ barbero, onClose }: { barbero: Profile; onC
       }
     } else {
       setExito(true);
-      if (insertData?.id) {
+      // Mails: si es flujo logueado los dispara el modal; si es guest ya los disparo el endpoint.
+      if (insertData?.id && userId) {
         const notif = (tipo: string) =>
           fetch("/api/notificar-turno", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ turno_id: insertData.id, tipo }),
+            body: JSON.stringify({ turno_id: insertData!.id, tipo }),
           }).catch(err => console.error("[notif] Error enviando email:", tipo, err));
         notif("pendiente_barbero");
         notif("reserva_cliente");
@@ -169,19 +226,7 @@ export function ReservarTurnoModal({ barbero, onClose }: { barbero: Profile; onC
     );
   }
 
-  if (!userId) {
-    return (
-      <Overlay onClose={onClose}>
-        <div className="p-8 text-center">
-          <h3 className="text-white font-bold text-lg mb-2">Iniciá sesión</h3>
-          <p className="text-[#888] text-sm mb-6">Para reservar un turno necesitás tener una cuenta en Hebra.</p>
-          <a href="/login" className="block w-full bg-[#1ed760] text-black font-bold py-3 rounded-xl">
-            Iniciar sesión
-          </a>
-        </div>
-      </Overlay>
-    );
-  }
+
 
   if (userId === barbero.id) {
     return (
@@ -384,6 +429,33 @@ export function ReservarTurnoModal({ barbero, onClose }: { barbero: Profile; onC
               className="w-full bg-[#141414] border border-[#2a2a2a] rounded-xl p-3 text-sm text-white placeholder-[#666] mb-4 resize-none"
               rows={2}
             />
+
+            {!userId && (
+              <div className="mb-4 space-y-2">
+                <p className="text-[#aaa] text-xs mb-1">Tus datos para confirmar la reserva:</p>
+                <input
+                  type="text"
+                  value={guestNombre}
+                  onChange={(e) => setGuestNombre(e.target.value)}
+                  placeholder="Nombre completo"
+                  className="w-full bg-[#141414] border border-[#2a2a2a] rounded-xl p-3 text-sm text-white placeholder-[#666]"
+                />
+                <input
+                  type="email"
+                  value={guestEmail}
+                  onChange={(e) => setGuestEmail(e.target.value)}
+                  placeholder="Email"
+                  className="w-full bg-[#141414] border border-[#2a2a2a] rounded-xl p-3 text-sm text-white placeholder-[#666]"
+                />
+                <input
+                  type="tel"
+                  value={guestWhatsapp}
+                  onChange={(e) => setGuestWhatsapp(e.target.value)}
+                  placeholder="WhatsApp (ej: 11 5888 1234)"
+                  className="w-full bg-[#141414] border border-[#2a2a2a] rounded-xl p-3 text-sm text-white placeholder-[#666]"
+                />
+              </div>
+            )}
 
             {error && <p className="text-red-400 text-sm mb-3">{error}</p>}
 
