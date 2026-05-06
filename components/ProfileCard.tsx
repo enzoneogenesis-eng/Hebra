@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Profile } from "@/types";
+import { formatearDistancia } from "@/lib/distancia";
 
 const tipoLabel: Record<string, string> = { barbero: "Barbero", salon: "Salón", cliente: "Cliente" };
 
@@ -10,7 +11,7 @@ function getBgColor(nombre: string): string {
   return colors[nombre.charCodeAt(0) % colors.length];
 }
 
-export function ProfileCard({ profile, href }: { profile: Profile; href?: string }) {
+export function ProfileCard({ profile, href, distanciaKm }: { profile: Profile; href?: string; distanciaKm?: number | null }) {
   return (
     <Link href={href ?? `/profile/${profile.id}`}
       className="group bg-[#111] border border-[#1e1e1e] rounded-2xl overflow-hidden active:scale-95 transition-all duration-200 block hover:border-[#333]"
@@ -51,6 +52,11 @@ export function ProfileCard({ profile, href }: { profile: Profile; href?: string
               <circle cx="12" cy="9" r="2.5"/>
             </svg>
             {profile.ubicacion}
+          </p>
+        )}
+        {distanciaKm !== undefined && distanciaKm !== null && (
+          <p className="text-[11px] text-[#22c55e] font-semibold mb-2">
+            a {formatearDistancia(distanciaKm)}
           </p>
         )}
         {profile.skills && profile.skills.length > 0 && (

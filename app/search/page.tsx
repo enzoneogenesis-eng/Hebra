@@ -5,6 +5,7 @@ import { ProfileCard } from "@/components/ProfileCard";
 import { CiudadSelector } from "@/components/CiudadSelector";
 import { CIUDADES, normalizar } from "@/lib/ciudades";
 import { Search, SlidersHorizontal, X, MapPin, Briefcase } from "lucide-react";
+import { calcularDistanciaKm } from "@/lib/distancia";
 import Link from "next/link";
 import Image from "next/image";
 import type { Profile, Oferta } from "@/types";
@@ -25,13 +26,41 @@ export default function SearchPage() {
   const [q, setQ]               = useState("");
   const [ciudad, setCiudad]     = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [userPos, setUserPos]   = useState<{ lat: number; lng: number } | null>(null);
+  const [geoStatus, setGeoStatus] = useState<"idle"|"granted"|"denied">("idle");
+
+  // Pedir geolocalizacion al cargar la pagina (mejora orden por distancia).
+  useEffect(() => {
+    if (!navigator.geolocation) { setGeoStatus("denied"); return; }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setUserPos({ lat: pos.coords.latitude, lng: pos.coords.longitude }); setGeoStatus("granted"); },
+      ()    => { setGeoStatus("denied"); },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+    );
+  }, []);
 
   async function loadProfiles(rolField: "is_barbero" | "is_dueno") {
     setLoading(true);
 
     if (rolField === "is_barbero") {
       const { data } = await supabase.from("profiles").select("*").eq("is_barbero", true).order("created_at", { ascending: false });
-      setProfiles((data ?? []) as Profile[]);
+      let rows = (data ?? []) as any[];
+      if (userPos) {
+        rows = rows.map(p => {
+          if (p.latitud != null && p.longitud != null) {
+            const d = calcularDistanciaKm(userPos.lat, userPos.lng, p.latitud, p.longitud);
+            return { ...p, _distanciaKm: d };
+          }
+          return p;
+        });
+        rows.sort((a, b) => {
+          if (a._distanciaKm == null && b._distanciaKm == null) return 0;
+          if (a._distanciaKm == null) return 1;
+          if (b._distanciaKm == null) return -1;
+          return a._distanciaKm - b._distanciaKm;
+        });
+      }
+      setProfiles(rows as Profile[]);
       setLoading(false);
       return;
     }
@@ -39,7 +68,7 @@ export default function SearchPage() {
     // Tab Salones: cada SUCURSAL activa es una card independiente
     const { data: sucursales } = await supabase
       .from("sucursales")
-      .select("id, nombre, direccion, ciudad, telefono, foto_url, marca:marcas(id, nombre, logo_url, owner:profiles!marcas_owner_id_fkey(telefono, instagram, ubicacion))")
+      .select("id, nombre, direccion, ciudad, telefono, foto_url, latitud, longitud, marca:marcas(id, nombre, logo_url, owner:profiles!marcas_owner_id_fkey(telefono, instagram, ubicacion))")
       .eq("activa", true)
       .order("nombre", { ascending: true });
 
@@ -73,7 +102,26 @@ export default function SearchPage() {
       };
     });
 
-    setProfiles(rows as Profile[]);
+    let rowsFinales = rows;
+    if (userPos) {
+      rowsFinales = rows.map((r: any, idx: number) => {
+        const lat = (sucursales[idx] as any).latitud;
+        const lng = (sucursales[idx] as any).longitud;
+        if (lat != null && lng != null) {
+          const d = calcularDistanciaKm(userPos.lat, userPos.lng, lat, lng);
+          return { ...r, _distanciaKm: d };
+        }
+        return r;
+      });
+      rowsFinales.sort((a: any, b: any) => {
+        if (a._distanciaKm == null && b._distanciaKm == null) return 0;
+        if (a._distanciaKm == null) return 1;
+        if (b._distanciaKm == null) return -1;
+        return a._distanciaKm - b._distanciaKm;
+      });
+    }
+
+    setProfiles(rowsFinales as Profile[]);
     setLoading(false);
   }
 
@@ -183,7 +231,7 @@ export default function SearchPage() {
           <>
             <p className="text-xs text-[#333] mb-3">{filtered.length} resultado{filtered.length !== 1 ? "s" : ""}</p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {filtered.map(p => <ProfileCard key={p.id} profile={p} href={(p as any)._searchHref} />)}
+              {filtered.map(p => <ProfileCard key={p.id} profile={p} href={(p as any)._searchHref} distanciaKm={(p as any)._distanciaKm} />)}
             </div>
           </>
         ) : (
