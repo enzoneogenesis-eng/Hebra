@@ -67,6 +67,15 @@ export async function getTurnoCompleto(admin: SupabaseClient, turnoId: string): 
 }
 
 export async function getEmailDeUsuario(admin: SupabaseClient, userId: string): Promise<string | null> {
+  // 1. Primero buscar en profiles.email (poblado para guests)
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("email")
+    .eq("id", userId)
+    .single();
+  if (profile?.email) return profile.email;
+
+  // 2. Fallback: auth.users (usuarios reales con sesion)
   const { data, error } = await admin.auth.admin.getUserById(userId);
   if (error || !data?.user?.email) return null;
   return data.user.email;
