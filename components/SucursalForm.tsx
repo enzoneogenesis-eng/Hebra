@@ -20,9 +20,12 @@ export function SucursalForm({ marcaId, sucursal, onSave, onClose }: Props) {
   const [telefono, setTelefono]     = useState(sucursal?.telefono ?? "");
   const [horario, setHorario]       = useState(sucursal?.horario_texto ?? "");
   const [fotoUrl, setFotoUrl]       = useState(sucursal?.foto_url ?? null);
+  const [latitud, setLatitud]       = useState<number | null>(sucursal?.latitud ?? null);
+  const [longitud, setLongitud]     = useState<number | null>(sucursal?.longitud ?? null);
   const [fotoFile, setFotoFile]     = useState<File | null>(null);
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
   const [saving, setSaving]         = useState(false);
+  const [geoStatus, setGeoStatus]   = useState<"idle"|"loading"|"ok"|"error">("idle");
   const [err, setErr]               = useState<string | null>(null);
 
   function pickFoto(e: React.ChangeEvent<HTMLInputElement>) {
@@ -35,6 +38,28 @@ export function SucursalForm({ marcaId, sucursal, onSave, onClose }: Props) {
     setErr(null);
     setFotoFile(file);
     setFotoPreview(URL.createObjectURL(file));
+  }
+
+  function usarMiUbicacion() {
+    if (!navigator.geolocation) {
+      setGeoStatus("error");
+      setErr("Tu navegador no soporta geolocalizacion");
+      return;
+    }
+    setGeoStatus("loading");
+    setErr(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLatitud(pos.coords.latitude);
+        setLongitud(pos.coords.longitude);
+        setGeoStatus("ok");
+      },
+      (e) => {
+        setGeoStatus("error");
+        setErr("No pudimos obtener tu ubicacion: " + (e.message || "permiso denegado"));
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
   }
 
   async function uploadFoto(sucursalId: string, file: File): Promise<string | null> {
@@ -67,6 +92,8 @@ export function SucursalForm({ marcaId, sucursal, onSave, onClose }: Props) {
             telefono: telefono.trim() || null,
             horario_texto: horario.trim() || null,
             foto_url: nuevaFoto,
+            latitud,
+            longitud,
           })
           .eq("id", sucursal.id)
           .select()
@@ -84,6 +111,8 @@ export function SucursalForm({ marcaId, sucursal, onSave, onClose }: Props) {
             ciudad: ciudad.trim() || null,
             telefono: telefono.trim() || null,
             horario_texto: horario.trim() || null,
+            latitud,
+            longitud,
           })
           .select()
           .single();
@@ -175,6 +204,23 @@ export function SucursalForm({ marcaId, sucursal, onSave, onClose }: Props) {
               onChange={e => setDireccion(e.target.value)}
               placeholder="Zapiola 1234"
             />
+            <button
+              type="button"
+              onClick={usarMiUbicacion}
+              disabled={geoStatus === "loading"}
+              className="mt-2 w-full text-xs flex items-center justify-center gap-2 bg-[#1a1a1a] hover:bg-[#222] border border-[#2a2a2a] text-white py-2 rounded-xl transition disabled:opacity-50"
+              style={{ WebkitTapHighlightColor: "transparent" }}
+            >
+              <MapPin size={12} />
+              {geoStatus === "loading" ? "Obteniendo ubicacion..." :
+               geoStatus === "ok" ? "\u2713 Ubicacion guardada" :
+               "Usar mi ubicacion actual"}
+            </button>
+            {geoStatus === "ok" && latitud !== null && longitud !== null && (
+              <p className="text-[10px] text-[#22c55e] mt-1">
+                Lat: {latitud.toFixed(5)} \u00b7 Lng: {longitud.toFixed(5)}
+              </p>
+            )}
           </div>
 
           {/* Ciudad */}
