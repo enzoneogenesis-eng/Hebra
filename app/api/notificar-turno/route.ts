@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
         break;
       case "recordatorio":
         html = templateRecordatorio(datos);
-        subject = `Recordatorio: manana tenes turno con ${turno.barbero.nombre}`;
+        subject = `Recordatorio: mañana tenés turno con ${turno.barbero.nombre}`;
         break;
     }
 

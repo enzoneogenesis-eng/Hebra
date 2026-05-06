@@ -35,7 +35,7 @@ function generarDias(): { fecha: Date; label: string; disponible: boolean }[] {
     fecha.setDate(hoy.getDate() + i)
     dias.push({
       fecha,
-      label: i === 0 ? 'Hoy' : i === 1 ? 'Manana' : DIAS_SEMANA[fecha.getDay()],
+      label: i === 0 ? 'Hoy' : i === 1 ? 'Mañana' : DIAS_SEMANA[fecha.getDay()],
       disponible: fecha.getDay() !== 0 // no domingo
     })
   }

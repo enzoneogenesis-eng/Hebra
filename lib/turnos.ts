@@ -74,9 +74,9 @@ export function formatearFechaCorta(fecha: Date): string {
   const diff = Math.round((cmp.getTime() - hoy.getTime()) / 86400000);
 
   if (diff === 0) return "Hoy";
-  if (diff === 1) return "Manana";
+  if (diff === 1) return "Mañana";
 
-  const dias = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
+  const dias = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
   const nombreDia = dias[cmp.getDay()];
   return `${nombreDia} ${cmp.getDate()}/${cmp.getMonth() + 1}`;
 }

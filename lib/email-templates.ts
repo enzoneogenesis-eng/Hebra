@@ -92,7 +92,7 @@ export function templateRechazado(d: DatosMail): string {
 export function templateRecordatorio(d: DatosMail): string {
   return layout(`
     <h2 style="margin: 0 0 12px;">Recordatorio de turno</h2>
-    <p style="margin: 0 0 20px; color: #444;">Hola ${d.nombreCliente}, te recordamos que manana tenes turno con <b>${d.nombreBarbero}</b>.</p>
+    <p style="margin: 0 0 20px; color: #444;">Hola ${d.nombreCliente}, te recordamos que mañana tenés turno con <b>${d.nombreBarbero}</b>.</p>
     ${bloqueDatosTurno(d)}
     ${botonDashboard("Ver detalles", "/turnos")}
     ${pie()}
