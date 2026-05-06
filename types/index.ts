@@ -15,6 +15,8 @@ export interface Profile {
   telefono: string | null;
   instagram: string | null;
   skills: string[] | null;
+  latitud: number | null;
+  longitud: number | null;
   created_at?: string;
 }
 
