@@ -130,6 +130,8 @@ export interface Sucursal {
   telefono: string | null;
   horario_texto: string | null;
   foto_url: string | null;
+  latitud: number | null;
+  longitud: number | null;
   activa: boolean;
   creada_en?: string;
   marca?: Marca;
